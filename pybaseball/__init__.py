@@ -16,6 +16,6 @@ from .pitching_leaders import pitching_stats
 from .batting_leaders import batting_stats
 from .team_pitching import team_pitching
 from .team_batting import team_batting
-import pybaseball.lahman as lahman
-import pybaseball.retrosheet as retrosheet
 import pybaseball.statcast as statcast
+import pybaseball.lahman
+import pybaseball.retrosheet
