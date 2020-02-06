@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 class FanGraphs(object):
     urls = {
         'leaders': 'https://www.fangraphs.com/leaders.aspx?{}',
+        'milb_stats': 'https://www.fangraphs.com/api/leaders/minor-league/data?{}'
     }
 
     def __init__(self):
@@ -146,3 +147,42 @@ class FanGraphs(object):
         return self.__get_leader_table(type='pit', start_season=start_season, end_season=end_season,
                                        league=league, qual=qual, ind=ind, team=['0', 'ts'])
 
+    def get_milb_pitching_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
+        parameters = {'pos': 'all',
+                      'stats': 'pit',
+                      'lg': league,
+                      'qual': qual,
+                      'type': ','.join(['0', ]),
+                      'season': start_season,
+                      'season1': end_season,
+                      'ind': ind,
+                      'org': '',
+                      'splitTeam': 'false'}
+
+        json = requests.get(
+            url=self.urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+
+        df = pd.DataFrame(json)
+        df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
+
+        return df
+
+    def get_milb_batting_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
+        parameters = {'pos': 'all',
+                      'stats': 'pit',
+                      'lg': league,
+                      'qual': qual,
+                      'type': ','.join(['0', ]),
+                      'season': start_season,
+                      'season1': end_season,
+                      'ind': ind,
+                      'org': '',
+                      'splitTeam': 'false'}
+
+        json = requests.get(
+            url=self.urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+
+        df = pd.DataFrame(json)
+        df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
+
+        return df
