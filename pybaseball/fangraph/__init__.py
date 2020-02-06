@@ -3,9 +3,11 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 import logging
+from datetime import datetime, timedelta
 import json
 
 logging.basicConfig(level=logging.DEBUG)
+
 
 class FanGraphs(object):
     urls = {
@@ -15,7 +17,7 @@ class FanGraphs(object):
     def __init__(self):
         pass
 
-    def __get_leaders_html(self, stats, start_season, end_season=None, league='all', qual=1, ind=1):
+    def __get_leaders_html(self, stats, start_season, end_season=None, league='all', qual=1, ind=1, **kwargs):
         """
 
         :param stats: pit or bat
@@ -28,9 +30,9 @@ class FanGraphs(object):
         """
 
         if stats == 'pit':
-            columns = ['c'] + [str(num) for num in range(3, 321)]
+            columns = ['c'] + [str(num) for num in range(3, 322)]
         elif stats == 'bat':
-            columns = ['c'] + [str(num) for num in range(3, 304)]
+            columns = ['c'] + [str(num) for num in range(3, 305)]
         else:
             columns = ['c']
 
@@ -43,13 +45,15 @@ class FanGraphs(object):
                       'month': 0,
                       'season1': end_season,
                       'ind': ind,
-                      'team': '',
-                      'rost': '',
-                      'age': '',
-                      'filter': '',
-                      'players': '',
+                      'team': ','.join(kwargs.get('team', [''])),
+                      'rost': kwargs.get('rost', ''),
+                      'age': kwargs.get('age', ''),
+                      'filter': kwargs.get('filter', ''),
+                      'players': kwargs.get('players', ''),
                       'page': '1_999999999'}
-        s = requests.get(self.urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
+
+        s = requests.get(
+            self.urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
         return BeautifulSoup(s, "lxml")
 
     def __get_leader_table(self, type, start_season, **kwargs):
@@ -78,7 +82,7 @@ class FanGraphs(object):
                 cols = [ele.text.strip() for ele in cols]
                 __data.append([ele for ele in cols[1:]])
 
-        __data = pd.DataFrame(data=__data, columns=__headings)
+        __data = pd.DataFrame(data=__data, columns=__headings)[1:]
 
         # replace empty strings with NaN
         __data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
@@ -90,10 +94,10 @@ class FanGraphs(object):
                 if pd.api.types.is_string_dtype(__data[col]):
                     __data[col] = __data[col].str.strip(' %')
                     __data[col] = __data[col].str.strip('%')
-                    __data[col] = pd.to_numeric(__data[col], errors='coerce')/ 100.
+                    __data[col] = pd.to_numeric(__data[col], errors='coerce') / 100.
         return __data
 
-    def get_pitching_table(self,start_season, end_season=None, league='all', qual=1, ind=1):
+    def get_pitching_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         """
 
         :param start_season:
@@ -105,7 +109,8 @@ class FanGraphs(object):
         """
         if start_season is None:
             raise ValueError(
-                "You need to provide at least one season to collect data for. Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
+                "You need to provide at least one season to collect data for. Try pitching_leaders(season) or "
+                "pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
         return self.__get_leader_table(type='pit', start_season=start_season, end_season=end_season,
@@ -113,9 +118,31 @@ class FanGraphs(object):
 
     def get_batting_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         if start_season is None:
-            raise ValueError("You need to provide at least one season to collect data for. Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
+            raise ValueError(
+                "You need to provide at least one season to collect data for. Try pitching_leaders(season) or "
+                "pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
         return self.__get_leader_table(type='bat', start_season=start_season, end_season=end_season,
                                        league=league, qual=qual, ind=ind)
+
+    def get_team_batting_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
+        if start_season is None:
+            raise ValueError(
+                "You need to provide at least one season to collect data for. "
+                "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
+        if end_season is None:
+            end_season = start_season
+        return self.__get_leader_table(type='bat', start_season=start_season, end_season=end_season,
+                                       league=league, qual=qual, ind=ind, team=['0', 'ts'])
+
+    def get_team_pitch_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
+        if start_season is None:
+            raise ValueError(
+                "You need to provide at least one season to collect data for. "
+                "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
+        if end_season is None:
+            end_season = start_season
+        return self.__get_leader_table(type='pit', start_season=start_season, end_season=end_season,
+                                       league=league, qual=qual, ind=ind, team=['0', 'ts'])
 
