@@ -1,26 +1,25 @@
 import logging
 import requests
-from datetime import datetime
+
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-from
+
 
 class Ottoneu(object):
     def __init__(self, league_id):
         self.league_id = league_id
         self.ottoneu_base_url = 'https://ottoneu.fangraphs.com/{}'.format(league_id)
-        self.players = self.load_player_fantasy_data()
 
     @staticmethod
     def process_player_page(soup, stat_type, league='MLB'):
         """
-        Process a beautiful soup player page to extract stats
+        Process a Player's page to extract stats using Beautiful Soup
 
         :param soup: BS4 Website
         :param stat_type: 'Pitching' or 'Batting'
         :param league: 'MLB' or 'MILB'
-        :return:
+        :return: DataFrame
         """
         if soup.find_all("h3", text="{} Stats".format(league))[0].parent.parent.find_all("h3", text=stat_type):
             stats = pd.read_html(str(soup.find_all("h3", text="{} Stats".format(league))[0].
@@ -38,7 +37,7 @@ class Ottoneu(object):
 
         :param ottoneu_base_url: Ottoneu League URL [https://ottoneu.fangraphs.com/186]
         :param positions: ['All', 'C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', 'UTIL']
-        :return: dictionaries of DataFrames of players
+        :return: dictionary consisting of various DataFrames of Players (and their Stats).
         """
         if positions is None:
             positions = ['', 'C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', '']
@@ -126,6 +125,12 @@ class Ottoneu(object):
         }
 
     def player_details(self, player_id):
+        """
+        Process a individual players statistics
+
+        :param player_id: Ottoneu Player ID
+        :return: DataFrame
+        """
         player_page = requests.get('{}/playercard?id={}'.format(self.ottoneu_base_url, player_id))
         soup = BeautifulSoup(player_page.text, 'html.parser')
 
@@ -140,7 +145,7 @@ class Ottoneu(object):
 
     def league_transactions(self):
         """
-        Get Transaction Log of Players Movement.
+        Get Transaction Log of Transaction of Players in Fantasy League.
 
         :return: DataFrame
         """

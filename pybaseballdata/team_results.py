@@ -3,8 +3,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from pybaseball.lahman import teams
-from pybaseball.utils import first_season_map
+from pybaseballdata.utils import first_season_map
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
@@ -20,7 +19,8 @@ def get_table(soup,team):
     try:
         table = soup.find_all('table')[0]
     except:
-        raise ValueError("Data cannot be retrieved for this team/year combo. Please verify that your team abbreviation is accurate and that the team existed during the season you are searching for.")
+        raise ValueError("Data cannot be retrieved for this team/year combo. Please verify that your team "
+                         "abbreviation is accurate and that the team existed during the season you are searching for.")
     data = []
     headings = [th.get_text() for th in table.find("tr").find_all("th")]
     headings = headings[1:] # the "gm#" heading doesn't have a <td> element

@@ -18,6 +18,7 @@ class Lahman(object):
         """
         Retrieve the Lahman database zip file, returns None if file already exists in cwd.
         If we already have the zip file, keep re-using that.
+
         :return:
         """
         if os.path.exists(self.base_string):
@@ -30,11 +31,12 @@ class Lahman(object):
     def download_lahman(self):
         """
         Download entire lahman db to present working directory
-        :return:
+
+        :return: None
         """
         z = self.get_lahman_zip()
         if z is not None:
-            z.extractall(self)
+            z.extractall(self._handle)
             z = self.get_lahman_zip()
             
     @property

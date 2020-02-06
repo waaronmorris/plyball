@@ -21,7 +21,7 @@ as additional data are received. We are grateful to anyone who
 discovers discrepancies and we appreciate learning of the details.
 """
 import pandas as pd
-from pybaseball.utils import get_zip_file
+from pybaseballdata.utils import get_zip_file
 from datetime import datetime
 
 
@@ -89,6 +89,9 @@ class Retrosheet(object):
     def season_game_logs(self, season):
         """
         Pull Retrosheet game logs for a given season
+        :param season: Game Logs for Season
+
+        :return: DataFrame
         """
         # validate input
         max_year = int(datetime.now().year) - 1
@@ -103,6 +106,7 @@ class Retrosheet(object):
     def world_series_logs(self):
         """
         Pull Retrosheet World Series Game Logs
+        :return: DataFrame
         """
         file_name = 'GLWS.TXT'
         z = get_zip_file(self.urls['world_series_url'])
@@ -113,6 +117,7 @@ class Retrosheet(object):
     def all_star_game_logs(self):
         """
         Pull Retrosheet All Star Game Logs
+        :return: DataFrame
         """
         file_name = 'GLAS.TXT'
         z = get_zip_file(self.urls['all_star_url'])
@@ -123,6 +128,7 @@ class Retrosheet(object):
     def wild_card_logs(self):
         """
         Pull Retrosheet Wild Card Game Logs
+        :return: DataFrame
         """
         file_name = 'GLWC.TXT'
         z = get_zip_file(self.urls['wild_card_ur'])
@@ -133,6 +139,7 @@ class Retrosheet(object):
     def division_series_logs(self):
         """
         Pull Retrosheet Division Series Game Logs
+        :return: DataFrame
         """
         file_name = 'GLDV.TXT'
         z = get_zip_file(self.urls['division_series_url'])
@@ -143,6 +150,7 @@ class Retrosheet(object):
     def lcs_logs(self):
         """
         Pull Retrosheet LCS Game Logs
+        :return: DataFrame
         """
         file_name = 'GLLC.TXT'
         z = get_zip_file(self.urls['lcs_url'])

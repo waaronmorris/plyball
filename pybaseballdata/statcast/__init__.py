@@ -3,14 +3,19 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import io
-from pybaseball.utils import validate_datestring, sanitize_input, split_request
+from pybaseballdata.utils import sanitize_input, split_request
 
+"""
+main.py
+====================================
+Module for all DataFrames originating from StatCast
+"""
 
 class StatCast(object):
     @staticmethod
     def single_game_request(game_pk):
         """
-
+        Select Single game for Statcast
         :param game_pk:
         :return:
         """
@@ -22,6 +27,12 @@ class StatCast(object):
 
     @staticmethod
     def small_request(start_dt, end_dt):
+        """
+
+        :param start_dt:
+        :param end_dt:
+        :return:
+        """
         url = ("https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium"
                "=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent"
                "=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={"
@@ -45,7 +56,7 @@ class StatCast(object):
         :param d2:
         :param step:
         :param verbose:
-        :return:
+        :return: DataFrame
         """
         error_counter = 0
         no_success_msg_flag = False
@@ -121,9 +132,9 @@ class StatCast(object):
     def postprocessing(data, team):
         """
 
-        :param data:
-        :param team:
-        :return:
+        :param data: Statcast Data to Process
+        :param team: Team to Select
+        :return: DataFrame
         """
         data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
         data.replace(r'^null$', np.nan, regex=True, inplace=True)
@@ -172,7 +183,7 @@ class StatCast(object):
         :param end_dt: the last date for which you want statcast data
         :param team: [optional] city abbreviation of the team you want data for (e.g. SEA or BOS)
         :param verbose:
-        :return:
+        :return: DataFrame
         """
 
         start_dt, end_dt = self.sanitize_input(start_dt, end_dt)
@@ -200,7 +211,7 @@ class StatCast(object):
         :param self:
         :param game_pk: 6-digit integer MLB game ID to retrieve
         :param team:
-        :return:
+        :return: DataFrame
         """
         data = self.single_game_request(game_pk)
         data = self.postprocessing(data, team)
@@ -212,7 +223,7 @@ class StatCast(object):
         Pulls statcast batter-level data from Baseball Savant for a given batter.
         :param start_dt:
         :param end_dt: the final date for which you want data
-        :param player_id:the player's MLBAM ID. Find this by calling pybaseball.playerid_lookup(last_name, first_name),
+        :param player_id:the player's MLBAM ID. Find this by calling pybaseballdata.playerid_lookup(last_name, first_name),
         finding the correct player, and selecting their key_mlbam.
         :return:
         """
@@ -270,6 +281,7 @@ class StatCast(object):
     def pitcher(start_dt=None, end_dt=None, player_id=None):
         """
         Pulls statcast pitch-level data from Baseball Savant for a given batter.
+
         :param start_dt: the first date for which you want a player's sSatcast data
         :param end_dt: the final date for which you want data
         :param player_id: the player's MLBAM ID.
