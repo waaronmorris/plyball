@@ -10,7 +10,7 @@ Get Baseball Reference's WAR stats from its `war_daily_pitch` table, along with 
 ## Examples of valid queries
 
 ```python
-from pybaseball import bwar_pitch
+from plyball import bwar_pitch
 
 # get war stats from baseball reference 
 data = bwar_pitch()

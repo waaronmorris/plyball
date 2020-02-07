@@ -12,7 +12,7 @@ The `batting_stats_range` function returns batting stats from Baseball Reference
 ## Examples of valid queries
 
 ```python
-from pybaseball import batting_stats_range
+from plyball import batting_stats_range
 
 # retrieve all players' batting stats for the month of May, 2017 
 data = batting_stats_range("2017-05-01", "2017-05-28")

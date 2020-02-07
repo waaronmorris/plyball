@@ -13,7 +13,7 @@ This table only has data from 2008 to present. The `pitching_stats` function is 
 ## Examples of valid queries
 
 ```python
-from pybaseball import pitching_stats_bref
+from plyball import pitching_stats_bref
 
 # get all of this season's pitching data so far
 data = pitching_stats_bref()

@@ -23,7 +23,7 @@ While this query should work for any historical season, some of the more modern 
 ## Examples of valid queries
 
 ```python
-from pybaseball import batting_stats
+from plyball import batting_stats
 
 # get all of this season's batting data so far
 data = batting_stats(2017)

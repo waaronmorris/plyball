@@ -14,7 +14,7 @@ This function is useful for connecting data sets from various sources or for fin
 ## Examples of valid queries
 
 ```python
-from pybaseball import playerid_reverse_lookup
+from plyball import playerid_reverse_lookup
 
 # a list of mlbam ids
 player_ids = [116539, 116541, 641728, 116540]
