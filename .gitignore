@@ -4,3 +4,4 @@ __pycache__
 /docs/_build
 /plyball.egg-info
 /dist
+/upload_to_pypi.sh

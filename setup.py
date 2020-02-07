@@ -1,16 +1,3 @@
-#from setuptools import setup
-
-#setup(name='plyball',
-#        version='0.1',
-#        description='retrieve baseball data in python',
-#        author='James LeDoux',
-#        author_email='ledoux.james.r@gmail.com',
-#        url='github.com/jldbc/plyball',
-#        license='MIT',
-#        packages=['plyball'],
-#        zip_safe=False)
-
-
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -29,17 +16,17 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.8',
+    version='0.0.1',
 
     description='Retrieve baseball data in Python',
     long_description=long_description,
     long_description_content_type="text/markdown",
     # The project's main homepage.
-    url='https://github.com/jldbc/pybaseball',
+    url='https://github.com/waaronmorris/plyball',
 
     # Author details
-    author='James LeDoux',
-    author_email='ledoux.james.r@gmail.com',
+    author='W. Aaron Morris',
+    author_email='w.aaron.morris@gmail.com',
 
     # Choose your license
     license='MIT',
@@ -50,7 +37,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
