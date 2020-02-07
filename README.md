@@ -27,7 +27,7 @@ python setup.py install
 Statcast data include pitch-level features such as Perceived Velocity (PV), Spin Rate (SR), Exit Velocity (EV), pitch X, Y, and Z coordinates, and more. The function `statcast(start_dt, end_dt)` pulls this data from baseballsavant.com. 
 
 ```python
->>> from pybaseball import statcast
+>>> from plyball import statcast
 >>> data = statcast(start_dt='2017-06-24', end_dt='2017-06-27')
 >>> data.head(2)
 
@@ -55,8 +55,8 @@ For a player-specific statcast query, pull pitching or batting data using the `s
 
 ```python
 >>> # Find Clayton Kershaw's player id
->>> from pybaseball import playerid_lookup
->>> from pybaseball import statcast_pitcher
+>>> from plyball import playerid_lookup
+>>> from plyball import statcast_pitcher
 >>> playerid_lookup('kershaw', 'clayton')
 Gathering player lookup table. This may take a moment.
 
@@ -101,7 +101,7 @@ The second is `pitching_stats_range(start_dt, end_dt)`. This allows you to obtai
 If you prefer Baseball Reference to FanGraphs, there is a third option called `pitching_stats_bref(season)`. This works the same as `pitching_stats`, but retrieves its data from Baseball Reference instead. This is typically not recommended, however, because the Baseball Reference query currently can only retrieve one season's worth of data per request.
 
 ```python
->>> from pybaseball import pitching_stats
+>>> from plyball import pitching_stats
 >>> data = pitching_stats(2012, 2016)
 >>> data.head()
      Season             Name     Team   Age     W    L   ERA  WAR     G    GS  
@@ -141,7 +141,7 @@ If you prefer Baseball Reference to FanGraphs, there is a third option called `p
 Batting stats are obtained similar to pitching stats. The function call for getting a season-level stats is `batting_stats(start_season, end_season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. The Baseball Reference equivalent for season-level data is `batting_stats_bref(season)`. 
 
 ```python
->>> from pybaseball import batting_stats_range
+>>> from plyball import batting_stats_range
 >>> data = batting_stats_range('2017-05-01', '2017-05-08')
 >>> data.head()
           Name  Age  #days     Lev          Tm  G  PA  AB  R  H  ...    HBP  
@@ -166,7 +166,7 @@ The `schedule_and_record` function returns a team's game-by-game results for a g
 
 ```python
 # Example: Let's take a look at the individual-game results of the 1927 Yankees
->>> from pybaseball import schedule_and_record
+>>> from plyball import schedule_and_record
 >>> data = schedule_and_record(1927, 'NYY')
 >>> data.head()
                 Date   Tm Home_Away  Opp W/L     R   RA   Inn  W-L  Rank  \
@@ -192,7 +192,7 @@ The `standings(season)` function gives division standings for a given season. If
 This function returns a list of dataframes. Each dataframe is the standings for one of MLB's six divisions. 
 
 ```python
->>> from pybaseball import standings
+>>> from plyball import standings
 >>> data = standings(2016)[4]
 >>> print(data)
                     Tm    W   L  W-L%    GB

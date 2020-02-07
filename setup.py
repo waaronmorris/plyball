@@ -1,13 +1,13 @@
 #from setuptools import setup
 
-#setup(name='pybaseball',
+#setup(name='plyball',
 #        version='0.1',
 #        description='retrieve baseball data in python',
 #        author='James LeDoux',
 #        author_email='ledoux.james.r@gmail.com',
-#        url='github.com/jldbc/pybaseball',
+#        url='github.com/jldbc/plyball',
 #        license='MIT',
-#        packages=['pybaseball'],
+#        packages=['plyball'],
 #        zip_safe=False)
 
 
@@ -24,7 +24,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='pybaseball',
+    name='plyball',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -74,7 +74,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages= ['pybaseball'],
+    packages= ['plyball'],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
