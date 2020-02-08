@@ -7,12 +7,21 @@ from bs4 import BeautifulSoup
 
 
 class Ottoneu(object):
+    """
+    A class for scrapping data from an Ottoneu fantasy league.
+
+    """
     def __init__(self, league_id):
+        """
+        Initialize Ottoneu with the ID of the League you are apart of.
+
+        :param league_id:
+        """
         self.league_id = league_id
         self.ottoneu_base_url = 'https://ottoneu.fangraphs.com/{}'.format(league_id)
 
     @staticmethod
-    def __process_player_page(soup, stat_type, league='MLB'):
+    def _process_player_page(soup, stat_type, league='MLB'):
         """
         Process a Player's page to extract stats using Beautiful Soup
 
@@ -35,7 +44,6 @@ class Ottoneu(object):
         """
         Get DataFrame of players for Players listed
 
-        :param ottoneu_base_url: Ottoneu League URL [https://ottoneu.fangraphs.com/186]
         :param positions: ['All', 'C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', 'UTIL']
         :return: dictionary consisting of various DataFrames of Players (and their Stats).
         """
@@ -137,8 +145,8 @@ class Ottoneu(object):
         # milb_pitching_stats = process_player_page(soup, 'Pitching', 'MILB')
         # milb_batting_stats = process_player_page(soup, 'Batting', 'MILB')
 
-        player_detail_stats = (Ottoneu.process_player_page(soup, 'Batting', 'MLB')
-                               .append(Ottoneu.process_player_page(soup, 'Pitching', 'MLB')))
+        player_detail_stats = (self._process_player_page(soup, 'Batting', 'MLB')
+                               .append(self._process_player_page(soup, 'Pitching', 'MLB')))
         player_detail_stats['player_id'] = player_id
 
         return player_detail_stats
