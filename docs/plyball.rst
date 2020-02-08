@@ -1,4 +1,4 @@
-pybaseball
+plyball
 ===================
 .. toctree::
    plyball.baseballreference

@@ -14,7 +14,7 @@ class FanGraphs(object):
     Class for scraping data from FanGraphs
 
     """
-    urls = {
+    _urls = {
         'leaders': 'https://www.fangraphs.com/leaders.aspx?{}',
         'milb_stats': 'https://www.fangraphs.com/api/leaders/minor-league/data?{}'
     }
@@ -59,7 +59,7 @@ class FanGraphs(object):
                       'page': '1_999999999'}
 
         s = requests.get(
-            self.urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
+            self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
         return BeautifulSoup(s, "lxml")
 
     def __get_leader_table(self, type, start_season, **kwargs):
@@ -206,7 +206,7 @@ class FanGraphs(object):
                       'splitTeam': 'false'}
 
         json = requests.get(
-            url=self.urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+            url=self._urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
         df = pd.DataFrame(json)
         df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
@@ -236,7 +236,7 @@ class FanGraphs(object):
                       'splitTeam': 'false'}
 
         json = requests.get(
-            url=self.urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+            url=self._urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
         df = pd.DataFrame(json)
         df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
