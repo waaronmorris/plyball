@@ -1,9 +1,5 @@
 pybaseball
 ===================
-
-Subpackages
------------
-
 .. toctree::
    plyball.baseballreference
    plyball.fangraph
@@ -12,10 +8,7 @@ Subpackages
    plyball.retrosheet
    plyball.statcast
 
-Submodules
-----------
-
-pybaseballdata.league\_batting\_stats module
+League Batting Stats
 --------------------------------------------
 
 .. automodule:: plyball.league_batting_stats
@@ -23,7 +16,7 @@ pybaseballdata.league\_batting\_stats module
    :undoc-members:
    :show-inheritance:
 
-pybaseballdata.league\_pitching\_stats module
+League Pitching Stats
 ---------------------------------------------
 
 .. automodule:: plyball.league_pitching_stats
@@ -31,7 +24,7 @@ pybaseballdata.league\_pitching\_stats module
    :undoc-members:
    :show-inheritance:
 
-pybaseballdata.playerid\_lookup module
+Player Lookup
 --------------------------------------
 
 .. automodule:: plyball.playerid_lookup
@@ -39,7 +32,7 @@ pybaseballdata.playerid\_lookup module
    :undoc-members:
    :show-inheritance:
 
-pybaseballdata.standings module
+Standing
 -------------------------------
 
 .. automodule:: plyball.standings
@@ -47,7 +40,7 @@ pybaseballdata.standings module
    :undoc-members:
    :show-inheritance:
 
-pybaseballdata.team\_results module
+Team Results
 -----------------------------------
 
 .. automodule:: plyball.team_results
@@ -55,7 +48,7 @@ pybaseballdata.team\_results module
    :undoc-members:
    :show-inheritance:
 
-pybaseballdata.utils module
+Utilities
 ---------------------------
 
 .. automodule:: plyball.utils

@@ -25,7 +25,7 @@ class Ottoneu(object):
             stats = pd.read_html(str(soup.find_all("h3", text="{} Stats".format(league))[0].
                                      parent.parent.find_all("h3", text=stat_type)[0].
                                      parent.parent.find_all('table')))[0]
-            stats['stat_type'] = stat_type
+            stats['position_type'] = stat_type
             stats['league'] = "{} Stats".format(league)
         else:
             stats = pd.DataFrame()

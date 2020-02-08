@@ -1,16 +1,15 @@
 Fantasy
 ==============================
 
-Subpackages
+Components
 -----------
 
 .. toctree::
 
    plyball.fantasy.ottoneu
 
-Module contents
----------------
-
+Functions
+----------------
 .. automodule:: plyball.fantasy
    :members:
    :undoc-members:
