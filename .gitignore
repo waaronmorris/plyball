@@ -5,3 +5,4 @@ __pycache__
 /plyball.egg-info
 /dist
 /upload_to_pypi.sh
+/build
