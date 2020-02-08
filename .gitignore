@@ -6,3 +6,4 @@ __pycache__
 /dist
 /upload_to_pypi.sh
 /build
+/upload_to_test_pypi.sh
