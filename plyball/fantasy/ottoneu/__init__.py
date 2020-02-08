@@ -12,7 +12,7 @@ class Ottoneu(object):
         self.ottoneu_base_url = 'https://ottoneu.fangraphs.com/{}'.format(league_id)
 
     @staticmethod
-    def process_player_page(soup, stat_type, league='MLB'):
+    def __process_player_page(soup, stat_type, league='MLB'):
         """
         Process a Player's page to extract stats using Beautiful Soup
 
