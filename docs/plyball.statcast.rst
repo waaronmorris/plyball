@@ -1,4 +1,4 @@
-pybaseballdata.statcast package
+Statcast
 ===============================
 
 Module contents

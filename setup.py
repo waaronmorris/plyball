@@ -19,7 +19,7 @@ setup(
     version='0.0.1',
 
     description='Retrieve baseball data in Python',
-    long_description=long_description,
+    long_description='See Read the Docs',
     long_description_content_type="text/markdown",
     # The project's main homepage.
     url='https://github.com/waaronmorris/plyball',

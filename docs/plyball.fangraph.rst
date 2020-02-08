@@ -1,4 +1,4 @@
-pybaseballdata.fangraph package
+FanGraph
 ===============================
 
 Module contents

@@ -1,4 +1,4 @@
-pybaseballdata.fantasy package
+Fantasy
 ==============================
 
 Subpackages

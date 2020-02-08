@@ -1,5 +1,5 @@
-pybaseballdata package
-======================
+pybaseball
+===================
 
 Subpackages
 -----------

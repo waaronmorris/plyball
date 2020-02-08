@@ -1,4 +1,4 @@
-pybaseballdata.baseballreference package
+Baseball Reference
 ========================================
 
 Module contents

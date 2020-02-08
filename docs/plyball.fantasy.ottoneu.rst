@@ -1,4 +1,4 @@
-pybaseballdata.fantasy.ottoneu package
+Ottoneu
 ======================================
 
 Module contents

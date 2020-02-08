@@ -1,4 +1,4 @@
-pybaseballdata.lahman package
+Lahman
 =============================
 
 Module contents

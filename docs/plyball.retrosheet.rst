@@ -1,4 +1,4 @@
-pybaseballdata.retrosheet package
+Retrosheet
 =================================
 
 Module contents
