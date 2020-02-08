@@ -16,4 +16,3 @@ pip install plyball
 
 ## Documentation
 The official documentation is hosted on ReadtheDocs.org: https://plyball.readthedocs.io/
-

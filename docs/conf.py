@@ -22,7 +22,7 @@ copyright = '2020, W. Aaron Morris'
 author = 'W. Aaron Morris'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.1.1'
 
 
 # -- General configuration ---------------------------------------------------

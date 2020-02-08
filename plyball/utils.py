@@ -46,7 +46,7 @@ def sanitize_input(start_dt, end_dt, player_id):
         raise ValueError("Player ID is required. If you need to find a player's id, try plyball.playerid_"
                          "lookup(last_name, first_name) and use their key_mlbam. If you want statcast data for all "
                          "players, try the statcast() function.")
-    # this id should be a string to place inside a url
+    # this id should be a string to place inside a _url
     player_id = str(player_id)
     # if no dates are supplied, assume they want yesterday's data
     # send a warning in case they wanted to specify

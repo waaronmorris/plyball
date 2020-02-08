@@ -24,7 +24,8 @@ class FanGraphs(object):
 
     def __get_leaders_html(self, stats, start_season, end_season=None, league='all', qual=1, ind=1, **kwargs):
         """
-        Get Leadeboard HTML form Fangraphs to convert into a Dataframe
+        Get Leadeboard HTML form Fangraphs to convert into a DataFrame
+
         :param stats: pit or bat
         :param start_season:
         :param end_season:
@@ -165,6 +166,7 @@ class FanGraphs(object):
     def get_team_pitch_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         """
         Get Team Pitching Stats from teh LeaderBoard.
+
         :param start_season:
         :param end_season:
         :param league:

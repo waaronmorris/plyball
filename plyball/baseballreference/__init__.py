@@ -82,6 +82,12 @@ class BaseballReference(object):
         return data
 
     def schedule_and_record(self, season, team):
+        """
+        Get a teams schedule and record from Baseball Reference
+        :param season: Season Year
+        :param team: Team Initials
+        :return: DataFrame
+        """
         try:
             if season < first_season_map[team]:
                 m = "Season cannot be before first year of a team's existence"
@@ -154,6 +160,7 @@ class BaseballReference(object):
         Get stats for a set time range. This can be the past week, the
         month of August, anything. Just supply the start and end date in YYYY-MM-DD
         format.
+
         :param string position_type: Pitching (p) or Batting (b)
         :param DateTime start_dt:
         :param DateTime end_dt:
@@ -185,20 +192,19 @@ class BaseballReference(object):
     def get_season_stats(self, position_type, season=datetime.now().year):
         """
         Get Stats from a set season.
-
+        :param position_type: Pitching (p) or Batting (b)
+        :param season: Season Year
         :return: DataFrame
         """
-        """
-        Get all pitching stats for a set season. If no argument is supplied, gives stats for 
-        current season to date. 
-        """
+
         start_dt = datetime(season, 3, 1)
         end_dt = datetime(season, 11, 1)
         return self.get_stats_range(position_type, start_dt, end_dt)
 
     def get_daily_war(self, position_type):
         """
-        Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats.
+        Get data from Daily War tables (pitching or batting). Returns WAR, its components, and a few other useful stats.
+
         :param string position_type: pitch or bat
         :return: DataFrame
         """
