@@ -2,8 +2,7 @@ import requests
 import zipfile
 import os
 import pandas as pd
-from io import BytesIO, StringIO
-from bs4 import BeautifulSoup
+from io import BytesIO
 
 
 class Lahman(object):

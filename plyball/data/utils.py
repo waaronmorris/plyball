@@ -53,7 +53,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     if start_dt is None and end_dt is None:
         today = datetime.today()
         start_dt = (today - timedelta(1)).strftime("%Y-%m-%d")
-        end_dt = today.strftime("%Y-%m-%d")
+        end_dt = today
         print("Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try "
               "get_statcast(start_dt, end_dt).")
     # if only one date is supplied, assume they only want that day's stats

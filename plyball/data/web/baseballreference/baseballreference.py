@@ -1,15 +1,17 @@
 import io
 from datetime import datetime, timedelta
-from plyball.utils import first_season_map
+
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from plyball.data.utils import first_season_map
+import logging
+
 
 class BaseballReference(object):
     urls = {
-
         'daily_war': 'http://www.baseball-reference.com/data/war_daily_{}.txt',
         'stats': 'http://www.baseball-reference.com/leagues/daily.cgi?{}',
         'standings': 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml',
@@ -25,21 +27,25 @@ class BaseballReference(object):
         :param string position_type: pitching (p) or batting (b)
         :return: BeautifulSoup
         """
+
         parameters = {
             'user_team': '',
             'bust_cache': '',
             'type': position_type,
             'lastndays': '7',
             'dates': 'fromandto',
-            'fromandto': '{}.{}'.format(start_date, end_date),
+            'fromandto': '{}.{}'.format(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")),
             'level': 'mlb',
             'franch': '',
             'stat': '',
             'stat_value': '0',
         }
 
+        logging.info(self.urls['stats'].format('&'.join(['{}={}'.format(k, v)
+                                                         for k, v in parameters.items()])))
         s = requests.get(self.urls['stats'].format('&'.join(['{}={}'.format(k, v)
                                                              for k, v in parameters.items()]))).content
+
         return BeautifulSoup(s, "lxml")
 
     def __get_league_stats_table(self,
@@ -65,7 +71,7 @@ class BaseballReference(object):
             cols = row.find_all('td')
             cols = [ele.text.strip() for ele in cols]
             data.append([ele for ele in cols])
-        data = pd.DataFrame(data, columns=data.iloc[0])
+        data = pd.DataFrame(data[1:], columns=data[0])
         return data
 
     def __get_team_result_html(self, season, team):
@@ -100,7 +106,7 @@ class BaseballReference(object):
 
         team_results = self.__get_team_results_table(season, team)
         team_results = self.__process_win_streak(team_results)
-        for column in ["R","RA","Inn","Rank","Attendance"]:
+        for column in ["R", "RA", "Inn", "Rank", "Attendance"]:
             team_results[column] = pd.to_numeric(team_results[column], errors='coerce')
         return team_results
 
@@ -152,7 +158,7 @@ class BaseballReference(object):
                     cols = [ele.text.strip() for ele in cols][0:5]
                     data.append([ele for ele in cols if ele])
         data = pd.DataFrame(data, columns=data.iloc[0])
-        data['Attendance'].replace(r'^Unknown$', np.nan, regex=True,  inplace=True)
+        data['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace=True)
         return data
 
     def get_stats_range(self, position_type, start_dt=None, end_dt=None):
@@ -167,10 +173,10 @@ class BaseballReference(object):
         :return: DataFrame
         """
         """
-        
+
         """
         table = self.__get_league_stats_table(position_type, start_dt, end_dt)
-        table = table.dropna(how='all')
+
         if position_type == 'p':
             table = table.replace('---%', np.NaN)
             for column in ['Age', '#days', 'G', 'GS', 'W', 'L', 'SV', 'IP', 'H',
@@ -185,7 +191,7 @@ class BaseballReference(object):
             for column in ['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B',
                            'HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP',
                            'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']:
-                table[column] = pd.to_numeric(table[column])
+                table[column] = pd.to_numeric(table[column], errors='coerce')
         table = table.drop('', 1)
         return table
 

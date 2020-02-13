@@ -49,7 +49,7 @@ def playerid_reverse_lookup(player_ids, key_type=None):
     Retrieve a table of player information given a list of player ids
 
     :param List player_ids: list of player ids
-    :param string key_type: name of the key type being looked up (one of "mlbam", "retro", "bbref", or "fangraphs")
+    :param string key_type: name of the key player_type being looked up (one of "mlbam", "retro", "bbref", or "fangraphs")
     :return: DataFrame
     """
     key_types = ('mlbam', 'retro', 'bbref', 'fangraphs',)

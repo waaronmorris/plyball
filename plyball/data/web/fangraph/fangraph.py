@@ -1,12 +1,9 @@
+import logging
+
 import numpy as np
 import pandas as pd
-from bs4 import BeautifulSoup
 import requests
-import logging
-from datetime import datetime, timedelta
-import json
-
-logging.basicConfig(level=logging.DEBUG)
+from bs4 import BeautifulSoup
 
 
 class FanGraphs(object):
@@ -22,7 +19,7 @@ class FanGraphs(object):
     def __init__(self):
         pass
 
-    def __get_leaders_html(self, stats, start_season, end_season=None, league='all', qual=1, ind=1, **kwargs):
+    def __get_leaders_html(self, stats, start_season, end_season=None, league='all', qual='y', ind=1, **kwargs):
         """
         Get Leadeboard HTML form Fangraphs to convert into a DataFrame
 
@@ -55,38 +52,42 @@ class FanGraphs(object):
                       'rost': kwargs.get('rost', ''),
                       'age': kwargs.get('age', ''),
                       'filter': kwargs.get('filter', ''),
-                      'players': kwargs.get('players', ''),
+                      'players': kwargs.get('players', '0'),
                       'page': '1_999999999'}
 
         s = requests.get(
             self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
+        logging.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         return BeautifulSoup(s, "lxml")
 
-    def __get_leader_table(self, type, start_season, **kwargs):
-        soup = self.__get_leaders_html(type, start_season, **kwargs)
+    def __get_leader_table(self, player_type, start_season, **kwargs):
+        soup = self.__get_leaders_html(player_type, start_season, **kwargs)
         table = soup.find('table', {'class': 'rgMasterTable'})
+
         __data = []
         __headings = [row.text.strip() for row in table.find_all('th')[1:]]
+        __headings.append('player_id')
 
-        if type == 'bat':
-            # rename the second occurrence of 'FB%' to 'FB% (Pitch)'
+        if player_type == 'bat':
             FBperc_indices = [i for i, j in enumerate(__headings) if j == 'FB%']
             __headings[FBperc_indices[1]] = 'FB% (Pitch)'
+        elif player_type == 'pit':
+            pass
 
-            table_body = table.find('tbody')
-            rows = table_body.find_all('tr')
-            for row in rows:
-                cols = row.find_all('td')
-                cols = [ele.text.strip() for ele in cols]
-                __data.append([ele for ele in cols[1:]])
-        elif type == 'pit':
-            __data.append(__headings)
-            table_body = table.find('tbody')
-            rows = table_body.find_all('tr')
-            for row in rows:
-                cols = row.find_all('td')
-                cols = [ele.text.strip() for ele in cols]
-                __data.append([ele for ele in cols[1:]])
+        __data.append(__headings)
+        table_body = table.find('tbody')
+        rows = table_body.find_all('tr')
+        for row in rows:
+            cols = row.find_all('td')
+            table_cols = []
+            for ele in cols:
+                table_cols.append(ele.text.strip())
+                for link in ele.find_all('a'):
+                    url = link.get('href', None)
+                    if 'playerid' in url:
+                        player_id = url.split('?')[1].split('&')[0].split('=')[1]
+            table_cols.append(player_id)
+            __data.append([ele for ele in table_cols[1:]])
 
         __data = pd.DataFrame(data=__data, columns=__headings)[1:]
 
@@ -120,8 +121,12 @@ class FanGraphs(object):
                 "pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
-        return self.__get_leader_table(type='pit', start_season=start_season, end_season=end_season,
-                                       league=league, qual=qual, ind=ind)
+        return self.__get_leader_table(player_type='pit',
+                                       start_season=start_season,
+                                       end_season=end_season,
+                                       league=league,
+                                       qual=qual,
+                                       ind=ind)
 
     def get_batting_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         """
@@ -140,8 +145,12 @@ class FanGraphs(object):
                 "pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
-        return self.__get_leader_table(type='bat', start_season=start_season, end_season=end_season,
-                                       league=league, qual=qual, ind=ind)
+        return self.__get_leader_table(player_type='bat',
+                                       start_season=start_season,
+                                       end_season=end_season,
+                                       league=league,
+                                       qual=qual,
+                                       ind=ind)
 
     def get_team_batting_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         """
@@ -160,8 +169,13 @@ class FanGraphs(object):
                 "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
-        return self.__get_leader_table(type='bat', start_season=start_season, end_season=end_season,
-                                       league=league, qual=qual, ind=ind, team=['0', 'ts'])
+        return self.__get_leader_table(player_type='bat',
+                                       start_season=start_season,
+                                       end_season=end_season,
+                                       league=league,
+                                       qual=qual,
+                                       ind=ind,
+                                       team=['0', 'ts'])
 
     def get_team_pitch_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         """
@@ -180,8 +194,13 @@ class FanGraphs(object):
                 "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
-        return self.__get_leader_table(type='pit', start_season=start_season, end_season=end_season,
-                                       league=league, qual=qual, ind=ind, team=['0', 'ts'])
+        return self.__get_leader_table(player_type='pit',
+                                       start_season=start_season,
+                                       end_season=end_season,
+                                       league=league,
+                                       qual=qual,
+                                       ind=ind,
+                                       team=['0', 'ts'])
 
     def get_milb_pitching_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
         """
@@ -198,7 +217,7 @@ class FanGraphs(object):
                       'stats': 'pit',
                       'lg': league,
                       'qual': qual,
-                      'type': ','.join(['0', ]),
+                      'player_type': ','.join(['0', ]),
                       'season': start_season,
                       'season1': end_season,
                       'ind': ind,
@@ -228,7 +247,7 @@ class FanGraphs(object):
                       'stats': 'pit',
                       'lg': league,
                       'qual': qual,
-                      'type': ','.join(['0', ]),
+                      'player_type': ','.join(['0', ]),
                       'season': start_season,
                       'season1': end_season,
                       'ind': ind,
