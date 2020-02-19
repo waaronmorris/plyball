@@ -1,4 +1,5 @@
 import logging
+
 import numpy as np
 import pandas as pd
 import requests
@@ -7,7 +8,7 @@ from bs4 import BeautifulSoup
 
 class Ottoneu(object):
     """
-    A class for scrapping data from an Ottoneu fantasy league.
+    A class for scrapping data from an Ottoneu pipeline league.
 
     """
 
@@ -49,10 +50,11 @@ class Ottoneu(object):
         :return: dictionary consisting of various DataFrames of Players (and their Stats).
         """
         if positions is None:
-            positions = ['', 'C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', '']
+            positions = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
 
         headers = {
             'authority': 'ottoneu.fangraphs.com',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'accept': '*/*',
             'origin': 'https://ottoneu.fangraphs.com',
             'x-requested-with': 'XMLHttpRequest',
@@ -63,22 +65,24 @@ class Ottoneu(object):
             'referer': '{}/search'.format(self.ottoneu_base_url),
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'en-US,en;q=0.9',
-            'cookie': 'PHPSESSID=l46n50mmf5iunhvmu29g9dp4uc; _ga=GA1.2.73209697.1579215532; _gid=GA1.2.124852174.1579215532; wordpress_test_cookie=WP+Cookie+check; __gads=ID=3142349aa5edeb87:T=1579215547:S=ALNI_MYMDjdj1jf3d6Qi1p3RADvVzpuxVg; wordpress_logged_in_0cae6f5cb929d209043cb97f8c2eee44=waaronmorris%7C1610772521%7C1wrLfEWarwbzufsFplT9gn55FlsSoJ3GbRd3e0wpC0a%7C991726ea6e2c3c687a01b737f1f3fc9e0ec789f18364f6240c229ee0989d9afc; amplitude_idfangraphs.com=eyJkZXZpY2VJZCI6IjMzMGEzNmRjLTE4ZjAtNDU0ZS1iOWZkLWYwNWNlZGY2MmY5MlIiLCJ1c2VySWQiOm51bGwsIm9wdE91dCI6ZmFsc2UsInNlc3Npb25JZCI6MTU3OTIyMDYxMDE4MywibGFzdEV2ZW50VGltZSI6MTU3OTIyMTA3MzgyOSwiZXZlbnRJZCI6MCwiaWRlbnRpZnlJZCI6MCwic2VxdWVuY2VOdW1iZXIiOjB9'
+            'cookie': 'PHPSESSID=l46n50mmf5iunhvmu29g9dp4uc; _ga=GA1.2.73209697.1579215532; wordpress_test_cookie=WP+Cookie+check; __gads=ID=3142349aa5edeb87:T=1579215547:S=ALNI_MYMDjdj1jf3d6Qi1p3RADvVzpuxVg; wordpress_logged_in_0cae6f5cb929d209043cb97f8c2eee44=waaronmorris%7C1610772521%7C1wrLfEWarwbzufsFplT9gn55FlsSoJ3GbRd3e0wpC0a%7C991726ea6e2c3c687a01b737f1f3fc9e0ec789f18364f6240c229ee0989d9afc; _jsuid=2753612375; _referrer_og=https%3A%2F%2Fwww.google.com%2F; __qca=P0-1733873236-1580794661744; tk_ai=woo%3AOOTw0f8ngEwTEkFJAX74yGTp; _gid=GA1.2.1219394307.1582069455; heatmaps_g2g_100553825=no; _gat=1; amplitude_idfangraphs.com=eyJkZXZpY2VJZCI6IjMzMGEzNmRjLTE4ZjAtNDU0ZS1iOWZkLWYwNWNlZGY2MmY5MlIiLCJ1c2VySWQiOm51bGwsIm9wdE91dCI6ZmFsc2UsInNlc3Npb25JZCI6MTU4MjA3MDE5MTkxNSwibGFzdEV2ZW50VGltZSI6MTU4MjA3MDE5NDk4MSwiZXZlbnRJZCI6MCwiaWRlbnRpZnlJZCI6MCwic2VxdWVuY2VOdW1iZXIiOjB9'
         }
 
-        json_data = {'data': {'txtSearch': '',
-                              'selPos': positions,
-                              'playerLevel': 'all',
-                              'chkFAOnly': '',
-                              'searchFilter': '',
-                              'searchComparison': '',
-                              'searchQualification': '',
-                              }
-                     }
+        json_data = {
+            'data': {
+                'txtSearch': '',
+                'selPos': positions,
+                'playerLevel': 'all',
+                'chkFAOnly': '',
+                'searchFilter': '',
+                'searchComparison': '',
+                'searchQualification': '',
+            }
+        }
 
         data = ''
-        for wrapper, paramters in json_data.items():
-            for param, value in paramters.items():
+        for wrapper, parameters in json_data.items():
+            for param, value in parameters.items():
                 if type(value) == list:
                     for selection in value:
                         data = data + '{}[{}][]={}'.format(wrapper, param, selection)
@@ -87,9 +91,11 @@ class Ottoneu(object):
                     data = data + '{}[{}]={}'.format(wrapper, param, value)
                 data = data + '&'
 
+        logging.info("{}/ajax/search".format(self.ottoneu_base_url))
         a = requests.post("{}/ajax/search".format(self.ottoneu_base_url),
                           data=data[:-1],
                           headers=headers)
+
         _json = a.json()
 
         batter_info = []
@@ -209,4 +215,3 @@ class Ottoneu(object):
         df['Date'] = pd.to_datetime(df['Date'])
         df['Salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
         return df
-

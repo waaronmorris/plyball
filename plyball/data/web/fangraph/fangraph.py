@@ -102,6 +102,8 @@ class FanGraphs(object):
                     __data[col] = __data[col].str.strip(' %')
                     __data[col] = __data[col].str.strip('%')
                     __data[col] = pd.to_numeric(__data[col], errors='coerce') / 100.
+
+        __data['player_type'] = player_type
         return __data
 
     def get_pitching_table(self, start_season, end_season=None, league='all', qual=1, ind=1):
