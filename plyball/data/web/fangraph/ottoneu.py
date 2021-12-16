@@ -49,6 +49,7 @@ class Ottoneu(object):
         :param positions: ['All', 'C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', 'UTIL']
         :return: dictionary consisting of various DataFrames of Players (and their Stats).
         """
+
         if positions is None:
             positions = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
 
@@ -64,8 +65,7 @@ class Ottoneu(object):
             'sec-fetch-mode': 'cors',
             'referer': '{}/search'.format(self.ottoneu_base_url),
             'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'en-US,en;q=0.9',
-            'cookie': 'PHPSESSID=l46n50mmf5iunhvmu29g9dp4uc; _ga=GA1.2.73209697.1579215532; wordpress_test_cookie=WP+Cookie+check; __gads=ID=3142349aa5edeb87:T=1579215547:S=ALNI_MYMDjdj1jf3d6Qi1p3RADvVzpuxVg; wordpress_logged_in_0cae6f5cb929d209043cb97f8c2eee44=waaronmorris%7C1610772521%7C1wrLfEWarwbzufsFplT9gn55FlsSoJ3GbRd3e0wpC0a%7C991726ea6e2c3c687a01b737f1f3fc9e0ec789f18364f6240c229ee0989d9afc; _jsuid=2753612375; _referrer_og=https%3A%2F%2Fwww.google.com%2F; __qca=P0-1733873236-1580794661744; tk_ai=woo%3AOOTw0f8ngEwTEkFJAX74yGTp; _gid=GA1.2.1219394307.1582069455; heatmaps_g2g_100553825=no; _gat=1; amplitude_idfangraphs.com=eyJkZXZpY2VJZCI6IjMzMGEzNmRjLTE4ZjAtNDU0ZS1iOWZkLWYwNWNlZGY2MmY5MlIiLCJ1c2VySWQiOm51bGwsIm9wdE91dCI6ZmFsc2UsInNlc3Npb25JZCI6MTU4MjA3MDE5MTkxNSwibGFzdEV2ZW50VGltZSI6MTU4MjA3MDE5NDk4MSwiZXZlbnRJZCI6MCwiaWRlbnRpZnlJZCI6MCwic2VxdWVuY2VOdW1iZXIiOjB9'
+            'accept-language': 'en-US,en;q=0.9'
         }
 
         json_data = {
@@ -81,6 +81,7 @@ class Ottoneu(object):
         }
 
         data = ''
+
         for wrapper, parameters in json_data.items():
             for param, value in parameters.items():
                 if type(value) == list:
@@ -97,25 +98,37 @@ class Ottoneu(object):
                           headers=headers)
 
         _json = a.json()
-
+        logging.info('_json')
         batter_info = []
         batter_stats = []
         for batter in _json['batterResults']:
             batter_info.append({k: v for k, v in batter.items() if k != 'Stats'})
-            if batter['Stats'] != 0:
+            try:
                 __stat_dict = {k: v for k, v in batter['Stats']['batting'].items()}
-                __stat_dict['PlayerID'] = batter['PlayerID']
-                batter_stats.append(__stat_dict)
+            except KeyError as e:
+                logging.warning(f"{batter['PlayerID']}|{e}")
+                __stat_dict = {}
+            except TypeError as e:
+                logging.warning(f"{batter['PlayerID']}|{e}")
+                __stat_dict = {}
+            __stat_dict['PlayerID'] = batter['PlayerID']
+            batter_stats.append(__stat_dict)
 
         pitcher_info = []
         pitcher_stats = []
         for pitcher in _json['pitcherResults']:
             pitcher_info.append({k: v for k, v in pitcher.items() if k != 'Stats'})
-            if pitcher['Stats'] != 0:
-                if 'pitching' in pitcher['Stats']:
-                    __stat_dict = {k: v for k, v in pitcher['Stats']['pitching'].items()}
-                    __stat_dict['PlayerID'] = pitcher['PlayerID']
-                    pitcher_stats.append(__stat_dict)
+            try:
+                __stat_dict = {k: v for k, v in pitcher['Stats']['pitching'].items()}
+            except KeyError as e:
+                logging.warning(f"{pitcher['PlayerID']}|{e}")
+                __stat_dict = {}
+            except TypeError as e:
+                logging.warning(f"{pitcher['PlayerID']}|{e}")
+                __stat_dict = {}
+
+            __stat_dict['PlayerID'] = pitcher['PlayerID']
+            pitcher_stats.append(__stat_dict)
 
         df_batter_info = pd.DataFrame(batter_info)
         df_pitcher_info = pd.DataFrame(pitcher_info)
@@ -123,8 +136,8 @@ class Ottoneu(object):
         df_batter_stat = pd.DataFrame(batter_stats)
         df_pitcher_stat = pd.DataFrame(pitcher_stats)
 
-        df_info = df_batter_info.append(df_pitcher_info)
-        df_stat = df_batter_stat.append(df_pitcher_stat)
+        df_info = df_batter_info.append(df_pitcher_info, sort=False)
+        df_stat = df_batter_stat.append(df_pitcher_stat, sort=False)
 
         return {
             'info': df_info,
@@ -141,7 +154,7 @@ class Ottoneu(object):
 
     def player_details(self, player_id):
         """
-        Process a individual players statistics
+        Process an individual players statistics
 
         :param player_id: Ottoneu Player ID
         :return: DataFrame

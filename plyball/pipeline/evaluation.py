@@ -27,10 +27,10 @@ def calculate_SABR_points(fangraph_stats, position_type):
 
     fangraph_stats['fantasy_points'] = 0
     if position_type == 'pitching':
-        fangraph_stats['IP'] = pd.to_numeric(fangraph_stats['IP']).round(0) + (pd.to_numeric(fangraph_stats['IP'])
-                                                                               - pd.to_numeric(
-                    fangraph_stats['IP']).round(0)[
-                                                                                 1:]) * 3.33
+        fangraph_stats['IP'] = pd.to_numeric(fangraph_stats['IP']).round(0) \
+                               + (pd.to_numeric(fangraph_stats['IP'])
+                                  - pd.to_numeric(fangraph_stats['IP']).round(0)[1:]) \
+                               * 3.33
         for stat, points in scoring['pitching'].items():
             fangraph_stats['fantasy_points'] = (fangraph_stats['fantasy_points'] +
                                                 (pd.to_numeric(fangraph_stats[stat], errors='coerce') * points))
@@ -63,7 +63,7 @@ def player_yearly_summary_data():
     __fangraph = pd.merge(__fangraph_pitching,
                           __fangraph_batting,
                           on='player_id',
-                          how='outer', suffixes=('_pitch','_bat'))
+                          how='outer', suffixes=('_pitch', '_bat'))
 
     df = __ottoneu.merge(__fangraph, right_on='player_id', left_on='fg_id', how='left')
     df.Points = df.Points.fillna(df.fantasy_points_bat.fillna(0) + df.fantasy_points_pitch.fillna(0))

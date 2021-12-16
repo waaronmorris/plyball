@@ -1,4 +1,5 @@
 import logging
+import re
 
 import numpy as np
 import pandas as pd
@@ -55,6 +56,7 @@ class FanGraphs(object):
                       'players': kwargs.get('players', '0'),
                       'page': '1_999999999'}
 
+        logging.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         s = requests.get(
             self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
         logging.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
@@ -68,12 +70,9 @@ class FanGraphs(object):
         __headings = [row.text.strip() for row in table.find_all('th')[1:]]
         __headings.append('player_id')
 
-        if player_type == 'bat':
-            FBperc_indices = [i for i, j in enumerate(__headings) if j == 'FB%']
-            __headings[FBperc_indices[1]] = 'FB% (Pitch)'
-        elif player_type == 'pit':
-            pass
-
+        FBperc_indices = [i for i, j in enumerate(__headings) if j == 'FB%']
+        __headings[FBperc_indices[0]] = 'flyball_%'
+        __headings[FBperc_indices[1]] = 'fastball_%'
         __data.append(__headings)
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
@@ -103,6 +102,11 @@ class FanGraphs(object):
                     __data[col] = __data[col].str.strip('%')
                     __data[col] = pd.to_numeric(__data[col], errors='coerce') / 100.
 
+        __data.columns = [
+            re.sub(r"\W", '_',
+                   column.replace('%', '_percent').replace('-', '_negative_').replace('+', '_positive_').replace('__',
+                                                                                                                 '_'))
+            for column in __data.columns]
         __data['player_type'] = player_type
         return __data
 
@@ -263,3 +267,5 @@ class FanGraphs(object):
         df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
 
         return df
+
+

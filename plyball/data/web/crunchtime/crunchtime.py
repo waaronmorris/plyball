@@ -1,6 +1,7 @@
 import io
 import requests
 import pandas as pd
+import chardet
 
 
 class CrunchTime(object):
@@ -10,4 +11,5 @@ class CrunchTime(object):
 
     def get_player_map(self):
         file = requests.get(self.urls['master']).content
-        return pd.read_csv(io.StringIO(file.decode('Windows-1252')))
+        print(chardet.detect(file))
+        return pd.read_csv(io.StringIO(file.decode('latin-1')))
