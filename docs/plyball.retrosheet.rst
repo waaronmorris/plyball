@@ -1,7 +1,10 @@
-Retrosheet
-=================================
+RetroSheet
+===================
 
-.. automodule:: plyball.retrosheet
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: retrosheet.RetroSheet
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+

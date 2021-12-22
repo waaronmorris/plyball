@@ -1,7 +1,7 @@
-StatCast
+FanGraphs
 ===================
 
-.. autoclass:: statcast.StatCast
+.. autoclass:: fangraph.FanGraphs
     :members:
     :undoc-members:
     :show-inheritance:

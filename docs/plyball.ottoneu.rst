@@ -1,7 +1,7 @@
-StatCast
+Ottoneu
 ===================
 
-.. autoclass:: statcast.StatCast
+.. autoclass:: ottoneu.Ottoneu
     :members:
     :undoc-members:
     :show-inheritance:

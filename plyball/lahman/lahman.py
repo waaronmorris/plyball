@@ -10,14 +10,15 @@ class Lahman(object):
     Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/), also hosted by
     Chadwick Bureau on GitHub -- our new source):
     """
+
     _handle = None
     _url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
     _base_string = os.path.join("baseballdatabank-master", "core")
 
     def __init__(self):
-        self.z = self.get_lahman_zip()
+        self.z = self.__get_lahman_zip()
 
-    def get_lahman_zip(self):
+    def __get_lahman_zip(self):
         """
         Retrieve the Lahman database zip file, returns None if file already exists in cwd.
         If we already have the zip file, keep re-using that.
@@ -31,16 +32,16 @@ class Lahman(object):
             self._handle = zipfile.ZipFile(BytesIO(s.content))
         return self._handle
 
-    def download_lahman(self):
+    def __download_lahman(self):
         """
         Download entire lahman db to present working directory
 
         :return: None
         """
-        z = self.get_lahman_zip()
+        z = self.__get_lahman_zip()
         if z is not None:
             z.extractall(self._handle)
-            z = self.get_lahman_zip()
+            z = self.__get_lahman_zip()
 
     @property
     def parks(self):
@@ -321,7 +322,7 @@ class Lahman(object):
     @property
     def teams(self):
         """
-        yearly stats and standings
+        yearly player_type and standings
 
         :return: DataFrame
         """

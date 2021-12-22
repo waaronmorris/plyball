@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from typing import List, Dict, Union
+
+from pandas import DataFrame
 
 
 class Ottoneu(object):
@@ -12,7 +15,7 @@ class Ottoneu(object):
 
     """
 
-    def __init__(self, league_id):
+    def __init__(self, league_id: int):
         """
         Initialize Ottoneu with the ID of the League you are apart of.
 
@@ -22,13 +25,16 @@ class Ottoneu(object):
         self.ottoneu_base_url = 'https://ottoneu.fangraphs.com/{}'.format(league_id)
 
     @staticmethod
-    def _process_player_page(soup, stat_type, league='MLB'):
+    def _process_player_page(soup: BeautifulSoup, stat_type:str, league: str = 'MLB') -> DataFrame:
         """
-        Process a Player's page to extract stats using Beautiful Soup
+        Process a Player's page to extract player_type using Beautiful Soup
 
         :param soup: BS4 Website
+        :type soup: str
         :param stat_type: 'Pitching' or 'Batting'
+        :type stat_type: str
         :param league: 'MLB' or 'MILB'
+        :type league: str
         :return: DataFrame
         """
         stats = pd.DataFrame()
@@ -42,12 +48,14 @@ class Ottoneu(object):
                 stats['league'] = "{} Stats".format(league)
         return stats
 
-    def players(self, positions=None):
+    def players(self, positions: List[str] = None) -> Dict[
+        str, Union[DataFrame, Dict[str, DataFrame], Dict[str, DataFrame]]]:
         """
         Get DataFrame of players for Players listed.
 
         :param positions: ['All', 'C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', 'UTIL']
-        :return: dictionary consisting of various DataFrames of Players (and their Stats).
+        :type positions: List[str]
+        :return: Dictionary consisting of various DataFrames of Players (and their Stats).
         """
 
         if positions is None:
@@ -152,7 +160,7 @@ class Ottoneu(object):
             }
         }
 
-    def player_details(self, player_id):
+    def player_details(self, player_id: str) -> pd.DataFrame:
         """
         Process an individual players statistics
 
@@ -193,7 +201,7 @@ class Ottoneu(object):
 
         return player_detail_stats
 
-    def league_transactions(self):
+    def league_transactions(self) -> pd.DataFrame:
         """
         Get Transaction Log of Transaction of Players in Fantasy League.
 

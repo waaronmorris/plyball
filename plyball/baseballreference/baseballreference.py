@@ -6,14 +6,18 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from plyball.data.utils import first_season_map
+from plyball.utils import first_season_map
 import logging
 
 
 class BaseballReference(object):
+    """
+    Class for BaseballReference
+    """
+
     urls = {
         'daily_war': 'http://www.baseball-reference.com/data/war_daily_{}.txt',
-        'stats': 'http://www.baseball-reference.com/leagues/daily.cgi?{}',
+        'player_type': 'http://www.baseball-reference.com/leagues/daily.cgi?{}',
         'standings': 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml',
         'team_results': 'http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml'
     }
@@ -41,9 +45,9 @@ class BaseballReference(object):
             'stat_value': '0',
         }
 
-        logging.info(self.urls['stats'].format('&'.join(['{}={}'.format(k, v)
+        logging.info(self.urls['player_type'].format('&'.join(['{}={}'.format(k, v)
                                                          for k, v in parameters.items()])))
-        s = requests.get(self.urls['stats'].format('&'.join(['{}={}'.format(k, v)
+        s = requests.get(self.urls['player_type'].format('&'.join(['{}={}'.format(k, v)
                                                              for k, v in parameters.items()]))).content
 
         return BeautifulSoup(s, "lxml")
@@ -53,7 +57,7 @@ class BaseballReference(object):
                                  start_date=datetime.today(),
                                  end_date=datetime.today() - timedelta(1)):
         """
-        Get stats from Baseball Reference for a certain time frame.
+        Get player_type from Baseball Reference for a certain time frame.
 
         :param string position_type: Pitching (p) or Batting (b)
         :param DateTime start_date: Beginning Date
@@ -96,7 +100,7 @@ class BaseballReference(object):
         """
         try:
             if season < first_season_map[team]:
-                m = "Season cannot be before first year of a team's existence"
+                m = "Season cannot be before first_name year of a team's existence"
                 raise ValueError(m)
         # ignore validation if team isn't found in dictionary
         except KeyError:
@@ -124,7 +128,7 @@ class BaseballReference(object):
         data.append(headings)
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
-        for row_index in range(len(rows) - 1):  # last row is a description of column meanings
+        for row_index in range(len(rows) - 1):  # last_name row is a description of column meanings
             row = rows[row_index]
             try:
                 cols = row.find_all('td')
@@ -163,7 +167,7 @@ class BaseballReference(object):
 
     def get_stats_range(self, position_type, start_dt=None, end_dt=None):
         """
-        Get stats for a set time range. This can be the past week, the
+        Get player_type for a set time range. This can be the past week, the
         month of August, anything. Just supply the start and end date in YYYY-MM-DD
         format.
 
@@ -209,7 +213,7 @@ class BaseballReference(object):
 
     def get_daily_war(self, position_type):
         """
-        Get data from Daily War tables (pitching or batting). Returns WAR, its components, and a few other useful stats.
+        Get data from Daily War tables (pitching or batting). Returns WAR, its components, and a few other useful player_type.
 
         :param string position_type: pitch or bat
         :return: DataFrame

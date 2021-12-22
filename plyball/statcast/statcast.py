@@ -1,3 +1,4 @@
+import datetime
 import io
 import logging
 from datetime import timedelta
@@ -6,7 +7,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from plyball.data.utils import sanitize_input, split_request
+from plyball.utils import sanitize_input, split_request
 
 logger = logging.getLogger('StatCast')
 c_handler = logging.StreamHandler()
@@ -18,6 +19,7 @@ class StatCast(object):
     """
     StatCast Web Scraper
     """
+
     urls = {
         'search': 'https://baseballsavant.mlb.com/statcast_search/csv?{}',
         'game': 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&type=details&game_pk={}',
@@ -101,13 +103,18 @@ class StatCast(object):
         return data
 
     @staticmethod
-    def statcast_request(url, headers=False, encoding=None):
+    def statcast_request(url: str, headers: bool = False, encoding: dict = None):
         """
+        Get Information from StatCast
 
-        :param url:
-        :return:
+        :param url: Url TO re
+        :type url: str
+        :param headers:
+        :type headers: str
+        :param encoding:
+        :type encoding: str
+        :return: DataFrame
         """
-
         headers = {
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
@@ -121,25 +128,29 @@ class StatCast(object):
             'Accept-Language': 'en-US,en;q=0.9',
             'Cookie': 'AMCVS_A65F776A5245B01B0A490D44%40AdobeOrg=1; s_ecid=MCMID|76932247013101732222268800691362456112; _gcl_au=1.1.1513098462.1579648486; btIdentify=cfd6af57-74af-4b7d-a816-5ce347301cfb; _bti=%7B%22bsin%22%3A%22%22%7D; s_cc=true; _fbp=fb.1.1579648488603.1129893510; __gads=ID=cb7ecf3d7321b3a0:T=1579648489:S=ALNI_MZZwhO232BTMssupgFaZoOPm47cyw; AAMC_mlb_0=REGION|9; aam_uuid=76899979787170794542236012221046728072; s_ppvl=Chicago%2520Cubs%253A%2520Team%253A%2520Player%2520Information%2C26%2C26%2C1063%2C1440%2C788%2C1440%2C900%2C2%2CP; QSI_HistorySession=https%3A%2F%2Fwww.mlb.com%2Fplayer%2Fjeff-mcneil-643446~1579648492612|https%3A%2F%2Fwww.mlb.com%2Fplayer%2Fyu-darvish-506433~1579648542566; s_ppv=Chicago%2520Cubs%253A%2520Team%253A%2520Player%2520Information%2C34%2C19%2C1916%2C1440%2C788%2C1440%2C900%2C2%2CP; s_getNewRepeat=1579660603422-Repeat; s_lv=1579660603424; s_pvs=0; s_tps=12081; __cfduid=dcbbe7432a7a65d9b0ac3c578d4a3f3da1580541225; AMCV_A65F776A5245B01B0A490D44%40AdobeOrg=1099438348|MCIDTS|18303|MCMID|76932247013101732222268800691362456112|MCAAMLH-1581967536|9|MCAAMB-1581967536|RKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y|MCOPTOUT-1581369936s|NONE|MCAID|NONE|vVersion|2.1.0; _bts=b16c6bef-4286-4894-8545-283acf210216; s_sq=%5B%5BB%5D%5D'
         }
-        print(url)
+        logging.info(url)
         if headers:
             s = requests.get(url, timeout=None, headers=headers).content
         else:
             s = requests.get(url, timeout=None).content
 
-        print(s)
+        logger.info(s)
         if encoding:
             data = pd.read_csv(io.StringIO(s.decode(encoding)))
         else:
             data = pd.read_csv(io.StringIO(s))
         return data
 
-    def large_request(self, start_date, end_date, step, parameters, url, verbose):
+    def large_request(self,
+                      start_date: datetime.date,
+                      end_date: datetime.date,
+                      step: int,
+                      parameters: dict,
+                      url: str,
+                      verbose: bool):
         """
         Break start and end date into smaller increments, collecting all data in small chunks and appending all
-        results to a common fangraph_stats end_dt is the date strings for the final day of the query d1 and end_date are
-        datetime objects for first and last day of query, for doing date math a third datetime object (d) will be
-        used to increment over time for the several intermediate queries
+        results to a common dataframe.
 
         :param url:
         :param parameters:
@@ -147,7 +158,7 @@ class StatCast(object):
         :param end_date:
         :param step:
         :param verbose:
-        :return:
+        :return: pd.DataFrame
         """
 
         error_counter = 0  # count failed requests. If > X, break
@@ -197,9 +208,10 @@ class StatCast(object):
                         break
             else:
                 dataframe_list.append(data)
-                logger.info(
-                    "Completed sub-query from {} to {}".format(start_date.strftime('%Y-%m-%d'),
-                                                               intermediate_dt.strftime('%Y-%m-%d')))
+                if verbose:
+                    logger.info(
+                        "Completed sub-query from {} to {}".format(start_date.strftime('%Y-%m-%d'),
+                                                                   intermediate_dt.strftime('%Y-%m-%d')))
             start_date = intermediate_dt + timedelta(days=1)
             intermediate_dt = intermediate_dt + timedelta(days=step + 1)
         if start_date < end_date:
@@ -216,16 +228,26 @@ class StatCast(object):
         final_data = pd.concat(dataframe_list, axis=0)
         return final_data
 
-    def get_statcast_data(self, start_dt=None, end_dt=None, team=None, detail=True, verbose=True):
+    def get_statcast_data(self,
+                          start_dt: datetime.date = None,
+                          end_dt: datetime.date = None,
+                          team: str = None,
+                          detail: bool = True,
+                          verbose: bool = True) -> pd.DataFrame:
         """
         Pulls Statcast play-level data from Baseball Savant for a given date range. If no arguments are provided, this
         will return yesterday's statcast data. If one date is provided, it will return that date's Statcast data.
 
-        :param start_dt: the first date for which you want statcast data
-        :param end_dt: the last date for which you want statcast data
-        :param team: [optional] city abbreviation of the team you want data for (e.g. SEA or BOS)
+        :param start_dt: First date for which you want StatCast data
+        :type start_dt: datetime.date
+        :param end_dt: Last date for which you want StatCast data
+        :type end_dt: datetime.date
+        :param team: City abbreviation of the team you want data for (e.g. SEA or BOS)
+        :type team: str
         :param detail: Provide Play-Level Detail
+        :type detail: bool
         :param verbose:
+        :type verbose: bool
         :return: DataFrame
         """
 
@@ -245,14 +267,16 @@ class StatCast(object):
         data = self.__postprocessing(data, team)
         return data
 
-    def single_game(self, game_pk, team=None):
+    def single_game(self, game_pk: str, team: str = None) -> pd.DataFrame:
         """
         Pulls statcast play-level data from Baseball Savant for a single game, identified by its MLB game ID (game_pk
         in statcast data)
 
         :param self:
         :param game_pk: 6-digit integer MLB game ID to retrieve
+        :type game_pk: str
         :param team:
+        :type team: str
         :return: DataFrame
         """
         data = self.__single_game_request(game_pk)
@@ -260,14 +284,18 @@ class StatCast(object):
         return data
 
     @staticmethod
-    def batter(start_dt, end_dt, player_id):
+    def batter(start_dt: datetime.date, end_dt: datetime.date, player_id: str) -> pd.DataFrame:
         """
         Pulls statcast batter-level data from Baseball Savant for a given batter.
-        :param start_dt:
+
+        :param start_dt: the first date for which you want data
+        :type start_dt: datetime.date
         :param end_dt: the final date for which you want data
-        :param player_id:the player's MLBAM ID. Find this by calling plyball.playerid_lookup(last_name, first_name),
-        finding the correct player, and selecting their key_mlbam.
-        :return:
+        :type end_dt: datetime.date
+        :param player_id: the player's MLBAM ID. Find this by calling :func:plyball.player_id_lookup.
+        :type player_id: str
+        :return: DataFrame of StatCast Data for Batters
+        :rtype: DataFrame
         """
 
         start_dt, end_dt, player_id = sanitize_input(start_dt, end_dt, player_id)
@@ -280,16 +308,14 @@ class StatCast(object):
         return df
 
     @staticmethod
-    def pitcher(start_dt, end_dt, player_id):
+    def pitcher(start_dt: datetime.date, end_dt: datetime.date, player_id: str)-> pd.DataFrame:
         """
-        Pulls statcast pitch-level data from Baseball Savant for a given batter.
-        batters_lookup[]=####&batters_lookup[]=######
-        pitchers_lookup[]=####&pitchers_lookup[]=#####
+        Pulls statcast pitch-level data from Baseball Savant for a given pitcher.
 
-        :param start_dt: the first date for which you want a player's sSatcast data
+        :param start_dt: the first_name date for which you want a player's sSatcast data
         :param end_dt: the final date for which you want data
         :param player_id: the player's MLBAM ID.
-        :return:
+        :return: Dataframe of StatCast Data for Pitchers
         """
 
         start_dt, end_dt, player_id = sanitize_input(start_dt, end_dt, player_id)
@@ -302,7 +328,23 @@ class StatCast(object):
         df = split_request(start_dt, end_dt, player_id, url)
         return df
 
-    def milb_statcast(self, start_date, end_date, details, verbose):
+    def milb_statcast(self,
+                      start_date: datetime.date,
+                      end_date: datetime.date,
+                      details: bool,
+                      verbose: bool,
+                      **kwargs) -> pd.DataFrame:
+        """
+        Get StatCast Data for MILB players
+
+        :param start_date:  the first date for which you want data
+
+        :param end_date:  the last date for which you want data
+        :param details: Aggregate Stats
+        :param verbose: Increased Logging
+        :return: Dataframe of MILB players
+        :rtype: pd.DataFrame
+        """
         small_query_threshold = 5
         parameters = {
             'pitcher_throws': '',
@@ -320,6 +362,9 @@ class StatCast(object):
             'min_pa': ''
         }
 
+        for k, v in kwargs.items():
+            parameters[k] = v
+
         if details:
             parameters['is_aggregate'] = 'false'
 
@@ -331,4 +376,3 @@ class StatCast(object):
                                   verbose=verbose)
 
         return data
-

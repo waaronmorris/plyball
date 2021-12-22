@@ -9,7 +9,12 @@ class CrunchTime(object):
         'master': 'http://crunchtimebaseball.com/master.csv'
     }
 
-    def get_player_map(self):
+    def get_player_map(self) -> pd.DataFrame:
+        """
+
+        :return:
+        """
+
         file = requests.get(self.urls['master']).content
         print(chardet.detect(file))
         return pd.read_csv(io.StringIO(file.decode('latin-1')))

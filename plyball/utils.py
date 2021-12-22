@@ -4,7 +4,7 @@ import zipfile
 from datetime import datetime, timedelta
 import pandas as pd
 
-# dictionary containing team abbreviations and their first year in existence
+# dictionary containing team abbreviations and their first_name year in existence
 first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
                     'ATL': 1966, 'BAL': 1872, 'BLA': 1901, 'BLN': 1892,
                     'BLU': 1884, 'BOS': 1871, 'BRA': 1872, 'BRG': 1890,
@@ -56,7 +56,7 @@ def sanitize_input(start_dt, end_dt, player_id):
         end_dt = today
         print("Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try "
               "get_statcast(start_dt, end_dt).")
-    # if only one date is supplied, assume they only want that day's stats
+    # if only one date is supplied, assume they only want that day's player_type
     # query in this case is from date 1 to date 1
     if start_dt is None:
         start_dt = end_dt

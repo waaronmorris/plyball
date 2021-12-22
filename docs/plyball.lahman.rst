@@ -1,7 +1,10 @@
 Lahman
-=============================
+===================
 
-.. automodule:: plyball.lahman
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: lahman.Lahman
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+

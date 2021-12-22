@@ -1,7 +1,7 @@
-StatCast
+Baseball Reference
 ===================
 
-.. autoclass:: statcast.StatCast
+.. autoclass:: baseballreference.BaseballReference
     :members:
     :undoc-members:
     :show-inheritance:

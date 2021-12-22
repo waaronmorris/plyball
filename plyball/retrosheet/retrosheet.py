@@ -21,11 +21,11 @@ as additional data are received. We are grateful to anyone who
 discovers discrepancies and we appreciate learning of the details.
 """
 import pandas as pd
-from plyball.data.utils import get_zip_file
+from plyball.utils import get_zip_file
 from datetime import datetime
 
 
-class Retrosheet(object):
+class RetroSheet(object):
     _gamelog_columns = ['date', 'game_num', 'day_of_week', 'visiting_team',
                        'visiting_team_league', 'visiting_game_num', 'home_team',
                        'home_team_league', 'home_team_game_num', 'visiting_score',

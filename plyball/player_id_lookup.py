@@ -1,13 +1,15 @@
 import io
 import logging
+
 import pandas as pd
 import requests
 
 
-def get_lookup_table():
+def get_lookup_table() -> pd.DataFrame:
     """
+    Generate a Dataframe of Players
 
-    :return:
+    :return: DataFrame
     """
     logging.info('Gathering player lookup table. This may take a moment.')
     url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
@@ -24,27 +26,29 @@ def get_lookup_table():
     return table
 
 
-def playerid_lookup(last, first=None):
+def player_id_lookup(last_name: str, first_name: str = None) -> pd.DataFrame:
     """
+    Obtain IDs for single Player
 
-    :param last: Last Name of PLayer
-    :param first: First Name of Player
-    :return:
+    :param last_name: Last Name of Player
+    :type last_name: string
+    :param first_name: First Name of Player
+    :type first_name: string
     """
-    last = last.lower()
-    if first:
-        first = first.lower()
+    last_name = last_name.lower()
+    if first_name:
+        first_name = first_name.lower()
     table = get_lookup_table()
-    if first is None:
-        results = table.loc[table['name_last'] == last]
+    if first_name is None:
+        results = table.loc[table['name_last'] == last_name]
     else:
-        results = table.loc[(table['name_last'] == last) & (table['name_first'] == first)]
+        results = table.loc[(table['name_last'] == last_name) & (table['name_first'] == first_name)]
 
     results = results.reset_index().drop('index', 1)
     return results
 
 
-def playerid_reverse_lookup(player_ids, key_type=None):
+def player_id_reverse_lookup(player_ids, key_type=None) -> pd.DataFrame:
     """
     Retrieve a table of player information given a list of player ids
 
