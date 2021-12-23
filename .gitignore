@@ -7,3 +7,4 @@ __pycache__
 /upload_to_pypi.sh
 /build
 /upload_to_test_pypi.sh
+/.

@@ -94,6 +94,7 @@ class BaseballReference(object):
     def schedule_and_record(self, season, team):
         """
         Get a teams schedule and record from Baseball Reference
+
         :param season: Season Year
         :param team: Team Initials
         :return: DataFrame
