@@ -29,8 +29,6 @@ jobs:
           --wheel
           --outdir dist/
           .
-      - name: Echo Token
-                - run: echo "secrets.PYPI_API_TOKEN"
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
