@@ -103,7 +103,7 @@ class StatCast(object):
         return data
 
     @staticmethod
-    def statcast_request(url: str, headers: bool = False, encoding: dict = None):
+    def statcast_request(url: str, headers: bool = False, encoding: str = None):
         """
         Get Information from StatCast
 
@@ -115,19 +115,7 @@ class StatCast(object):
         :type encoding: str
         :return: DataFrame
         """
-        headers = {
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
-            'Sec-Fetch-User': '?1',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-Mode': 'navigate',
-            'Referer': 'https://baseballsavant.mlb.com/statcast_search?hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R|&hfC=&hfSea=2019|&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt=2019-08-01&game_date_lt=2019-08-31&hfInfield=&team=&position=&hfOutfield=&hfRO=&home_road=&hfFlag=&hfPull=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_pas=0&chk_pitch_type=on&chk_pitch_result=on&chk_bb_type=on&chk_count=on&chk_batter_stands=on&chk_takes=on',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Cookie': 'AMCVS_A65F776A5245B01B0A490D44%40AdobeOrg=1; s_ecid=MCMID|76932247013101732222268800691362456112; _gcl_au=1.1.1513098462.1579648486; btIdentify=cfd6af57-74af-4b7d-a816-5ce347301cfb; _bti=%7B%22bsin%22%3A%22%22%7D; s_cc=true; _fbp=fb.1.1579648488603.1129893510; __gads=ID=cb7ecf3d7321b3a0:T=1579648489:S=ALNI_MZZwhO232BTMssupgFaZoOPm47cyw; AAMC_mlb_0=REGION|9; aam_uuid=76899979787170794542236012221046728072; s_ppvl=Chicago%2520Cubs%253A%2520Team%253A%2520Player%2520Information%2C26%2C26%2C1063%2C1440%2C788%2C1440%2C900%2C2%2CP; QSI_HistorySession=https%3A%2F%2Fwww.mlb.com%2Fplayer%2Fjeff-mcneil-643446~1579648492612|https%3A%2F%2Fwww.mlb.com%2Fplayer%2Fyu-darvish-506433~1579648542566; s_ppv=Chicago%2520Cubs%253A%2520Team%253A%2520Player%2520Information%2C34%2C19%2C1916%2C1440%2C788%2C1440%2C900%2C2%2CP; s_getNewRepeat=1579660603422-Repeat; s_lv=1579660603424; s_pvs=0; s_tps=12081; __cfduid=dcbbe7432a7a65d9b0ac3c578d4a3f3da1580541225; AMCV_A65F776A5245B01B0A490D44%40AdobeOrg=1099438348|MCIDTS|18303|MCMID|76932247013101732222268800691362456112|MCAAMLH-1581967536|9|MCAAMB-1581967536|RKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y|MCOPTOUT-1581369936s|NONE|MCAID|NONE|vVersion|2.1.0; _bts=b16c6bef-4286-4894-8545-283acf210216; s_sq=%5B%5BB%5D%5D'
-        }
+
         logging.info(url)
         if headers:
             s = requests.get(url, timeout=None, headers=headers).content

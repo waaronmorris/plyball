@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path
+from os import path, getenv
 
 here = path.abspath(path.dirname(__file__))
 
@@ -16,7 +16,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.63',
+    version=getenv('GITHUB_REF_NAME', '0.0.1.1'),
 
     description='A simple package for scraping baseball data from the most popular sites.',
     long_description=long_description,
