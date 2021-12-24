@@ -1,3 +1,29 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:eac24f2617d583dbedf119ab7a9d9e6b49976b25543235cd0c05a02c31abce92
-size 1126
+name: Upload Python Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - name: Set up Python
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        pip install build
+    - name: Build package
+      run: python -m build
+    - name: Build and publish
+      env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
