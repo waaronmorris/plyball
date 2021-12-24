@@ -16,7 +16,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=getenv('VERSION_NUMBER', '0.0.1') + '-' + getenv('GITHUB_REF_NAME', '0') + '-' + getenv('GITHUB_SHA', '0'),
+    version=getenv('VERSION_NUMBER', '0.0.1') + '-' + getenv('GITHUB_REF_NAME', '0') + '-' + getenv('$GITHUB_ENV', '0'),
 
     description='A simple package for scraping baseball data from the most popular sites.',
     long_description=long_description,
