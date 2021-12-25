@@ -1,11 +1,11 @@
 import logging
 import re
+from typing import Literal
 
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from typing import Literal
 
 
 class FanGraphs(object):
@@ -129,15 +129,15 @@ class FanGraphs(object):
                            start_season: int,
                            end_season: int = None,
                            league: str = 'all',
-                           qualified: Literal[0, 1] = 1,
-                           split_season: Literal[0, 1] = 1):
+                           minimum_innings_pitched: int = None,
+                           split_season: bool = True):
         """
         Get individual pitching data from LeaderBoard.
 
         :param start_season:
         :param end_season:
         :param league:
-        :param qualified:
+        :param minimum_innings_pitched:
         :param split_season:
         :return:
         """
@@ -151,17 +151,22 @@ class FanGraphs(object):
                                        start_season=start_season,
                                        end_season=end_season,
                                        league=league,
-                                       qualified=qualified,
-                                       ind=split_season)
+                                       qualified='y' if minimum_innings_pitched is None else minimum_innings_pitched,
+                                       ind=1 if split_season else 0)
 
-    def get_batting_table(self, start_season, end_season=None, league='all', qualified=1, split_season=1):
+    def get_batting_table(self,
+                          start_season,
+                          end_season: int = None,
+                          league: str = 'all',
+                          minimum_plate_appearances: int = None,
+                          split_season: bool = True):
         """
         Get Individual Batting Stats from the LeaderBoard.
 
         :param start_season:
         :param end_season:
         :param league:
-        :param qualified:
+        :param minimum_plate_appearances:
         :param split_season:
         :return:
         """
@@ -175,17 +180,22 @@ class FanGraphs(object):
                                        start_season=start_season,
                                        end_season=end_season,
                                        league=league,
-                                       qualified=qualified,
-                                       ind=split_season)
+                                       qualified='y' if minimum_plate_appearances is None else minimum_plate_appearances,
+                                       ind=1 if split_season else 0)
 
-    def get_team_batting_table(self, start_season, end_season=None, league='all', qualified=1, split_season=1):
+    def get_team_batting_table(self,
+                               start_season: int,
+                               end_season: int = None,
+                               league: str = 'all',
+                               minimum_plate_appearances: int = None,
+                               split_season: bool = True):
         """
         Get Team Batting Stats from the LeaderBoard.
 
         :param start_season: First Season to return data
         :param end_season: Last Season to return data
         :param league: American (AL) or National (NL) Baseball League
-        :param minimum_plate_appearances: Minimum number of Plate Appearances (Not supplied only qualified players will be returned)
+        :param minimum_plate_appearances: Minimum number of Plate Appearances (Not supplied only minimum_innings_pitched players will be returned)
         :param split_season: Return Season Splits for players
         :return:
         """
@@ -199,16 +209,16 @@ class FanGraphs(object):
                                        start_season=start_season,
                                        end_season=end_season,
                                        league=league,
-                                       qualified=qualified,
-                                       ind=split_season,
+                                       qualified='y' if minimum_plate_appearances is None else minimum_plate_appearances,
+                                       ind=1 if split_season else 0,
                                        team=['0', 'to'])
 
     def get_team_pitch_table(self,
                              start_season: int,
                              end_season: int = None,
                              league: str = 'all',
-                             minimum_plate_appearances: int = None,
-                             split_season: Literal[0,1] = 1):
+                             minimum_innings_pitched: int = None,
+                             split_season: bool = True):
         """
         Get Team Pitching Stats from teh LeaderBoard.
 
@@ -216,7 +226,7 @@ class FanGraphs(object):
         :param start_season: First Season to return data
         :param end_season: Last Season to return data
         :param league: American (AL) or National (NL) Baseball League
-        :param minimum_plate_appearances: Minimum number of Pitching Appearances (Not supplied only qualified players will be returned)
+        :param minimum_innings_pitched: Minimum number of Pitching Appearances (Not supplied only minimum_plate_appearances players will be returned)
         :param split_season: Return Season Splits for players
 
         :return: DataFrame
@@ -231,15 +241,15 @@ class FanGraphs(object):
                                        start_season=start_season,
                                        end_season=end_season,
                                        league=league,
-                                       qualified='y' if minimum_plate_appearances is None else minimum_plate_appearances,
-                                       ind=split_season,
+                                       qualified='y' if minimum_innings_pitched is None else minimum_innings_pitched,
+                                       ind=1 if split_season else 0,
                                        team=['0', 'to'])
 
     def get_milb_pitching_table(self,
                                 start_season: int,
                                 end_season: int = None,
                                 league: str = 'all',
-                                minimum_plate_appearances: int = None,
+                                minimum_innings_pitched: int = None,
                                 split_season: int = 1):
         """
         Get Minor League Pitching Stats from the Prospects sections
@@ -247,14 +257,14 @@ class FanGraphs(object):
         :param start_season: First Season to return data
         :param end_season: Last Season to return data
         :param league: American (AL) or National (NL) Baseball League
-        :param minimum_plate_appearances: Minimum number of Plate Appearances (Not supplied only qualified players will be returned)
+        :param minimum_innings_pitched: Minimum number of Plate Appearances (Not supplied only minimum_innings_pitched players will be returned)
         :param split_season: Return Season Splits for players
         :return: DataFrame
         """
         parameters = {'pos': 'all',
                       'stat': 'pit',
                       'lg': league,
-                      'qual': 'y' if minimum_plate_appearances is None else minimum_plate_appearances,
+                      'qual': 'y' if minimum_innings_pitched is None else minimum_innings_pitched,
                       'player_type': ','.join(['0', ]),
                       'season': start_season,
                       'season1': end_season,
@@ -272,17 +282,17 @@ class FanGraphs(object):
 
     def get_milb_batting_table(self,
                                start_season: int,
-                               end_season:int = None,
+                               end_season: int = None,
                                league: str = 'all',
                                minimum_plate_appearances: int = None,
-                               split_season: Literal[0, 1] = 1) -> pd.DataFrame:
+                               split_season: bool = True) -> pd.DataFrame:
         """
         Get Minor League Pitching from the Prospects sections.
 
         :param start_season: First Season to return data
         :param end_season: Last Season to return data
         :param league: American (AL) or National (NL) Baseball League
-        :param minimum_plate_appearances: Minimum number of Plate Appearances (Not supplied only qualified players will be returned)
+        :param minimum_plate_appearances: Minimum number of Plate Appearances (Not supplied only minimum_innings_pitched players will be returned)
         :param split_season: Return Season Splits for players
         :return: DataFrame
         """
@@ -293,7 +303,7 @@ class FanGraphs(object):
                       'player_type': ','.join(['0', ]),
                       'season': start_season,
                       'season1': end_season,
-                      'ind': split_season,
+                      'ind': 1 if split_season else 0,
                       'org': '',
                       'splitTeam': 'false'}
 

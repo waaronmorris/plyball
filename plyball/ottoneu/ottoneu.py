@@ -1,11 +1,10 @@
 import logging
+from typing import List, Dict, Union
 
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from typing import List, Dict, Union
-
 from pandas import DataFrame
 
 
@@ -17,20 +16,21 @@ class Ottoneu(object):
 
     def __init__(self, league_id: int):
         """
-        Initialize Ottoneu with the ID of the League you are apart of.
+        Initialize Ottoneu with the ID of the League you are a part of.
 
         :param league_id:
+        :type league_id: int
         """
         self.league_id = league_id
         self.ottoneu_base_url = 'https://ottoneu.fangraphs.com/{}'.format(league_id)
 
     @staticmethod
-    def _process_player_page(soup: BeautifulSoup, stat_type:str, league: str = 'MLB') -> DataFrame:
+    def _process_player_page(soup: BeautifulSoup, stat_type: str, league: str = 'MLB') -> DataFrame:
         """
         Process a Player's page to extract player_type using Beautiful Soup
 
         :param soup: BS4 Website
-        :type soup: str
+        :type soup: BeautifulSoup
         :param stat_type: 'Pitching' or 'Batting'
         :type stat_type: str
         :param league: 'MLB' or 'MILB'
@@ -48,8 +48,9 @@ class Ottoneu(object):
                 stats['league'] = "{} Stats".format(league)
         return stats
 
-    def players(self, positions: List[str] = None) -> Dict[
-        str, Union[DataFrame, Dict[str, DataFrame], Dict[str, DataFrame]]]:
+    def players(self, positions: List[str] = None) -> Dict[str, Union[DataFrame,
+                                                                      Dict[str, DataFrame],
+                                                                      Dict[str, DataFrame]]]:
         """
         Get DataFrame of players for Players listed.
 
@@ -172,22 +173,12 @@ class Ottoneu(object):
             'accept': '*/*',
             'origin': 'https://ottoneu.fangraphs.com',
             'x-requested-with': 'XMLHttpRequest',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/79.0.3945.117 Safari/537.36',
             'content-player_type': 'application/x-www-form-urlencoded',
             'sec-fetch-site': 'same-origin',
             'sec-fetch-mode': 'cors',
             'referer': '{}/search'.format(self.ottoneu_base_url),
             'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'en-US,en;q=0.9',
-            'cookie': 'PHPSESSID=l46n50mmf5iunhvmu29g9dp4uc; _ga=GA1.2.73209697.1579215532; '
-                      '_gid=GA1.2.124852174.1579215532; wordpress_test_cookie=WP+Cookie+check; '
-                      '__gads=ID=3142349aa5edeb87:T=1579215547:S=ALNI_MYMDjdj1jf3d6Qi1p3RADvVzpuxVg; '
-                      'wordpress_logged_in_0cae6f5cb929d209043cb97f8c2eee44=waaronmorris%7C1610772521'
-                      '%7C1wrLfEWarwbzufsFplT9gn55FlsSoJ3GbRd3e0wpC0a'
-                      '%7C991726ea6e2c3c687a01b737f1f3fc9e0ec789f18364f6240c229ee0989d9afc; '
-                      'amplitude_idfangraphs.com=eyJkZXZpY2VJZCI6IjMzMGEzNmRjLTE4ZjAtNDU0ZS1iOWZkLWYwNWNlZGY2MmY5MlIiLCJ1c2VySWQiOm51bGwsIm9wdE91dCI6ZmFsc2UsInNlc3Npb25JZCI6MTU3OTIyMDYxMDE4MywibGFzdEV2ZW50VGltZSI6MTU3OTIyMTA3MzgyOSwiZXZlbnRJZCI6MCwiaWRlbnRpZnlJZCI6MCwic2VxdWVuY2VOdW1iZXIiOjB9 '
-        }
+            'accept-language': 'en-US,en;q=0.9'}
 
         player_page = requests.get('{}/playercard?id={}'.format(self.ottoneu_base_url, player_id), headers=headers)
         soup = BeautifulSoup(player_page.text, 'html.parser')
