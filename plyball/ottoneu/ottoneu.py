@@ -1,6 +1,8 @@
 import logging
 from typing import List, Dict, Union
 
+import urllib.parse
+
 import numpy as np
 import pandas as pd
 import requests
@@ -81,7 +83,7 @@ class Ottoneu(object):
             'data': {
                 'txtSearch': '',
                 'selPos': positions,
-                'playerLevel': 'all',
+                'playerLevel': 'majors',
                 'chkFAOnly': '',
                 'searchFilter': '',
                 'searchComparison': '',
@@ -95,19 +97,22 @@ class Ottoneu(object):
             for param, value in parameters.items():
                 if type(value) == list:
                     for selection in value:
-                        data = data + '{}[{}][]={}'.format(wrapper, param, selection)
+                        data = data + '{}%5B{}%5D%5B%5D={}'.format(wrapper, param, selection)
                         data = data + '&'
                 else:
-                    data = data + '{}[{}]={}'.format(wrapper, param, value)
+                    data = data + '{}%5B{}%5D={}'.format(wrapper, param, value)
                 data = data + '&'
 
         logging.info("{}/ajax/search".format(self.ottoneu_base_url))
+        logging.info(data[:-1])
+
+        payload = 'data%5BtxtSearch%5D=&data%5BselPos%5D%5B%5D=C&data%5BselPos%5D%5B%5D=1B&data%5BselPos%5D%5B%5D=2B&data%5BselPos%5D%5B%5D=3B&data%5BselPos%5D%5B%5D=SS&data%5BselPos%5D%5B%5D=OF&data%5BselPos%5D%5B%5D=SP&data%5BselPos%5D%5B%5D=RP&data%5BplayerLevel%5D=all&data%5BchkFAOnly%5D=&data%5BsearchFilter%5D=&data%5BsearchComparison%5D=&data%5BsearchQualification%5D='
         a = requests.post("{}/ajax/search".format(self.ottoneu_base_url),
-                          data=data[:-1],
+                          data=data,
                           headers=headers)
 
         _json = a.json()
-        logging.info('_json')
+        logging.info(f'JSON: {_json}')
         batter_info = []
         batter_stats = []
         for batter in _json['batterResults']:
@@ -115,10 +120,10 @@ class Ottoneu(object):
             try:
                 __stat_dict = {k: v for k, v in batter['Stats']['batting'].items()}
             except KeyError as e:
-                logging.warning(f"{batter['PlayerID']}|{e}")
+                logging.warning(f"Batter: {batter['PlayerID']}|{e}")
                 __stat_dict = {}
             except TypeError as e:
-                logging.warning(f"{batter['PlayerID']}|{e}")
+                logging.warning(f"Batter: {batter['PlayerID']}|{e}")
                 __stat_dict = {}
             __stat_dict['PlayerID'] = batter['PlayerID']
             batter_stats.append(__stat_dict)
@@ -130,10 +135,10 @@ class Ottoneu(object):
             try:
                 __stat_dict = {k: v for k, v in pitcher['Stats']['pitching'].items()}
             except KeyError as e:
-                logging.warning(f"{pitcher['PlayerID']}|{e}")
+                logging.warning(f"Pitcher: {pitcher['PlayerID']}|{e}")
                 __stat_dict = {}
             except TypeError as e:
-                logging.warning(f"{pitcher['PlayerID']}|{e}")
+                logging.warning(f"Pitcher: {pitcher['PlayerID']}|{e}")
                 __stat_dict = {}
 
             __stat_dict['PlayerID'] = pitcher['PlayerID']

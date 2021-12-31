@@ -1,10 +1,19 @@
 import pandas as pd
 
-from plyball.data.web import fangraph
-from plyball.data.web.crunchtime import CrunchTime
+from plyball.player_map import get_player_map
+from plyball.fangraph import FanGraphs
+from plyball.ottoneu import Ottoneu
 
 
-def calculate_SABR_points(fangraph_stats, position_type):
+def calculate_sabr_points(fangraph_stats, position_type):
+    """
+    Function for calculating number of points in SABR fantasy leagues.
+    TODO: make function for more generic leagues
+
+    :param fangraph_stats:
+    :param position_type:
+    :return:
+    """
     scoring = {
         'batting': {'AB': -1.0,
                     'H': 5.6,
@@ -48,24 +57,24 @@ def player_yearly_summary_data():
 
     :return:
     """
-    __player_map = CrunchTime().get_player_map()
-    __ottoneu = fangraph.Ottoneu(186).players()['info']
+    __player_map = get_player_map()
+    __ottoneu = Ottoneu(186).players()['info']
     __ottoneu['PlayerID'] = pd.to_numeric(__ottoneu['PlayerID'], errors='coerce')
     __ottoneu = __ottoneu.merge(__player_map,
-                                right_on='ottoneu_id',
+                                right_on='OTTONEUID',
                                 left_on='PlayerID')
 
-    __fangraph_pitching = fangraph.FanGraphs().get_pitching_table(2019)
-    __fangraph_pitching['fantasy_points'] = calculate_SABR_points(__fangraph_pitching, 'pitch')
-    __fangraph_batting = fangraph.FanGraphs().get_batting_table(2019)
-    __fangraph_batting['fantasy_points'] = calculate_SABR_points(__fangraph_batting, 'batting')
+    __fangraph_pitching = FanGraphs().get_pitching_table(2019)
+    __fangraph_pitching['fantasy_points'] = calculate_sabr_points(__fangraph_pitching, 'pitch')
+    __fangraph_batting = FanGraphs().get_batting_table(2019)
+    __fangraph_batting['fantasy_points'] = calculate_sabr_points(__fangraph_batting, 'batting')
 
     __fangraph = pd.merge(__fangraph_pitching,
                           __fangraph_batting,
                           on='player_id',
                           how='outer', suffixes=('_pitch', '_bat'))
 
-    df = __ottoneu.merge(__fangraph, right_on='player_id', left_on='fg_id', how='left')
+    df = __ottoneu.merge(__fangraph, right_on='player_id', left_on='IDFANGRAPHS', how='left')
     df.Points = df.Points.fillna(df.fantasy_points_bat.fillna(0) + df.fantasy_points_pitch.fillna(0))
 
     return df

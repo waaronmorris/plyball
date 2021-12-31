@@ -2,7 +2,6 @@ Plyball
 ===================
 .. toctree::
     plyball.baseballReference
-    plyball.crunchTime
     plyball.fanGraphs
     plyball.lahman
     plyball.ottoneu
