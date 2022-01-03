@@ -1,5 +1,7 @@
 import io
-from datetime import datetime, timedelta
+import logging
+from datetime import datetime, timedelta, date
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -7,7 +9,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from plyball.utils import first_season_map
-import logging
 
 
 class BaseballReference(object):
@@ -22,7 +23,9 @@ class BaseballReference(object):
         'team_results': 'http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml'
     }
 
-    def __get_league_stats_html(self, position_type, start_date, end_date):
+    def __get_league_stats_html(self, position_type: Literal['p', 'b'],
+                                start_date: date,
+                                end_date: date):
         """
         Get League Stats from Baseball Reference for pitching and batting.
 
@@ -46,16 +49,16 @@ class BaseballReference(object):
         }
 
         logging.info(self.urls['player_type'].format('&'.join(['{}={}'.format(k, v)
-                                                         for k, v in parameters.items()])))
+                                                               for k, v in parameters.items()])))
         s = requests.get(self.urls['player_type'].format('&'.join(['{}={}'.format(k, v)
-                                                             for k, v in parameters.items()]))).content
+                                                                   for k, v in parameters.items()]))).content
 
         return BeautifulSoup(s, "lxml")
 
     def __get_league_stats_table(self,
-                                 position_type,
-                                 start_date=datetime.today(),
-                                 end_date=datetime.today() - timedelta(1)):
+                                 position_type: Literal['b', 'p'],
+                                 start_date: date = datetime.today(),
+                                 end_date: date = datetime.today() - timedelta(1)):
         """
         Get player_type from Baseball Reference for a certain time frame.
 
@@ -78,7 +81,7 @@ class BaseballReference(object):
         data = pd.DataFrame(data[1:], columns=data[0])
         return data
 
-    def __get_team_result_html(self, season, team):
+    def __get_team_result_html(self, season: int, team: str):
         s = requests.get(self.urls['team_results'].format(team, season)).content
         return BeautifulSoup(s, "lxml")
 
@@ -91,7 +94,7 @@ class BaseballReference(object):
             data = data.drop('Streak2', 1)
         return data
 
-    def schedule_and_record(self, season, team):
+    def schedule_and_record(self, season: int, team: str):
         """
         Get a teams schedule and record from Baseball Reference
 
@@ -115,7 +118,7 @@ class BaseballReference(object):
             team_results[column] = pd.to_numeric(team_results[column], errors='coerce')
         return team_results
 
-    def __get_team_results_table(self, season, team):
+    def __get_team_results_table(self, season: int, team: str):
         try:
             table = self.__get_team_result_html(season, team).find_all('table')[0]
         except:
@@ -166,7 +169,7 @@ class BaseballReference(object):
         data['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace=True)
         return data
 
-    def get_stats_range(self, position_type, start_dt=None, end_dt=None):
+    def get_stats_range(self, position_type: Literal['p', 'b'], start_dt: date = None, end_dt: date = None):
         """
         Get player_type for a set time range. This can be the past week, the
         month of August, anything. Just supply the start and end date in YYYY-MM-DD
@@ -200,7 +203,7 @@ class BaseballReference(object):
         table = table.drop('', 1)
         return table
 
-    def get_season_stats(self, position_type, season=datetime.now().year):
+    def get_season_stats(self, position_type: Literal['p', 'b'], season: int = datetime.now().year):
         """
         Get Stats from a set season.
         :param position_type: Pitching (p) or Batting (b)
@@ -212,7 +215,7 @@ class BaseballReference(object):
         end_dt = datetime(season, 11, 1)
         return self.get_stats_range(position_type, start_dt, end_dt)
 
-    def get_daily_war(self, position_type):
+    def get_daily_war(self, position_type: Literal['p', 'b']):
         """
         Get data from Daily War tables (pitching or batting). Returns WAR, its components, and a few other useful player_type.
 
