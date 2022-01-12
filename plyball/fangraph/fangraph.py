@@ -18,6 +18,8 @@ class FanGraphs(object):
         'milb_stats': 'https://www.fangraphs.com/api/leaders/minor-league/data?{}'
     }
 
+    logger = logging.getLogger('fangraphs')
+
     def __init__(self):
         pass
 
@@ -65,10 +67,10 @@ class FanGraphs(object):
                       'players': kwargs.get('players', '0'),
                       'page': '1_999999999'}
 
-        logging.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
+        self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         s = requests.get(
             self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
-        logging.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
+        self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         return BeautifulSoup(s, "lxml")
 
     def __get_leader_table(self,
