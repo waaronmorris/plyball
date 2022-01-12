@@ -9,16 +9,16 @@ import requests
 
 from plyball.utils import sanitize_input, split_request
 
-logger = logging.getLogger('StatCast')
-c_handler = logging.StreamHandler()
-c_format = logging.Formatter('%(levelname)s: %(name)s - %(message)s')
-logger.addHandler(c_handler)
-
 
 class StatCast(object):
     """
     StatCast Web Scraper
     """
+
+    logger = logging.getLogger('statcast')
+    c_handler = logging.StreamHandler()
+    c_format = logging.Formatter('%(levelname)s: %(name)s - %(message)s')
+    logger.addHandler(c_handler)
 
     urls = {
         'search': 'https://baseballsavant.mlb.com/statcast_search/csv?{}',
@@ -102,8 +102,7 @@ class StatCast(object):
         data = pd.read_csv(io.StringIO(s.decode('utf-8')))
         return data
 
-    @staticmethod
-    def statcast_request(url: str, headers: bool = False, encoding: str = None):
+    def statcast_request(self, url: str, headers: bool = False, encoding: str = None):
         """
         Get Information from StatCast
 
@@ -116,13 +115,13 @@ class StatCast(object):
         :return: DataFrame
         """
 
-        logging.info(url)
+        self.logger.info(url)
         if headers:
             s = requests.get(url, timeout=None, headers=headers).content
         else:
             s = requests.get(url, timeout=None).content
 
-        logger.info(s)
+        self.logger.info(s)
         if encoding:
             data = pd.read_csv(io.StringIO(s.decode(encoding)))
         else:
@@ -150,14 +149,14 @@ class StatCast(object):
         """
 
         error_counter = 0  # count failed requests. If > X, break
-        logger.info("This is a large query, it may take a moment to complete")
+        self.logger.info("This is a large query, it may take a moment to complete")
         dataframe_list = []
         intermediate_dt = start_date + timedelta(days=step)
         while intermediate_dt <= end_date:
             if (intermediate_dt.month < 4 and intermediate_dt.day < 15) or (
                     start_date.month > 10 and start_date.day > 14):
                 if end_date.year > intermediate_dt.year:
-                    logger.info('Skipping Off Season Dates')
+                    self.logger.info('Skipping Off Season Dates')
                     start_date = start_date.replace(month=3, day=15, year=start_date.year + 1)
                     intermediate_dt = start_date + timedelta(days=step + 1)
                 else:
@@ -186,7 +185,7 @@ class StatCast(object):
                         smaller_data_1 = self.statcast_request(url.format(
                             '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
                         if 'error' in data.columns:
-                            logger.warning(
+                            self.logger.warning(
                                 "Query unsuccessful for data from {} to {}. Skipping these dates.".format(
                                     start_date.strftime('%Y-%m-%d'),
                                     intermediate_dt.strftime('%Y-%m-%d')))
@@ -197,7 +196,7 @@ class StatCast(object):
             else:
                 dataframe_list.append(data)
                 if verbose:
-                    logger.info(
+                    self.logger.info(
                         "Completed sub-query from {} to {}".format(start_date.strftime('%Y-%m-%d'),
                                                                    intermediate_dt.strftime('%Y-%m-%d')))
             start_date = intermediate_dt + timedelta(days=1)
