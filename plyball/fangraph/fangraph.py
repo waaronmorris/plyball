@@ -14,8 +14,9 @@ class FanGraphs(object):
 
     """
     _urls = {
-        'leaders': 'https://www.fangraphs.com/leaders.aspx?{}',
-        'milb_stats': 'https://www.fangraphs.com/api/leaders/minor-league/data?{}'
+            'leaders':     'https://www.fangraphs.com/leaders.aspx?{}',
+            'milb_stats':  'https://www.fangraphs.com/api/leaders/minor-league/data?{}',
+            'projections': 'https://www.fangraphs.com/api/projections?{}'
     }
 
     logger = logging.getLogger('fangraphs')
@@ -51,25 +52,27 @@ class FanGraphs(object):
         else:
             columns = ['c']
 
-        parameters = {'pos': 'all',
-                      'stats': player_type,
-                      'lg': league,
-                      'qual': qualified,
-                      'type': ','.join(columns),
-                      'season': start_season,
-                      'month': 0,
-                      'season1': end_season,
-                      'ind': split_season,
-                      'team': ','.join(kwargs.get('team', [''])),
-                      'rost': kwargs.get('rost', ''),
-                      'age': kwargs.get('age', ''),
-                      'filter': kwargs.get('filter', ''),
-                      'players': kwargs.get('players', '0'),
-                      'page': '1_999999999'}
+        parameters = {
+                'pos':     'all',
+                'stats':   player_type,
+                'lg':      league,
+                'qual':    qualified,
+                'type':    ','.join(columns),
+                'season':  start_season,
+                'month':   0,
+                'season1': end_season,
+                'ind':     split_season,
+                'team':    ','.join(kwargs.get('team', [''])),
+                'rost':    kwargs.get('rost', ''),
+                'age':     kwargs.get('age', ''),
+                'filter':  kwargs.get('filter', ''),
+                'players': kwargs.get('players', '0'),
+                'page':    '1_999999999'
+        }
 
         self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         s = requests.get(
-            self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
+                self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
         self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         return BeautifulSoup(s, "lxml")
 
@@ -79,7 +82,9 @@ class FanGraphs(object):
                            **kwargs) -> pd.DataFrame:
 
         soup = self.__get_leaders_html(player_type, start_season, **kwargs)
-        table = soup.find('table', {'class': 'rgMasterTable'})
+        table = soup.find('table', {
+                'class': 'rgMasterTable'
+        })
 
         __data = []
         __headings = [row.text.strip() for row in table.find_all('th')[1:]]
@@ -120,10 +125,11 @@ class FanGraphs(object):
                     __data[col] = pd.to_numeric(__data[col], errors='coerce') / 100.
 
         __data.columns = [
-            re.sub(r"\W", '_',
-                   column.replace('%', '_percent').replace('-', '_negative_').replace('+', '_positive_').replace('__',
-                                                                                                                 '_'))
-            for column in __data.columns]
+                re.sub(r"\W", '_',
+                       column.replace('%', '_percent').replace('-', '_negative_').replace('+', '_positive_').replace(
+                               '__',
+                               '_'))
+                for column in __data.columns]
         __data['player_type'] = player_type
         return __data
 
@@ -145,8 +151,8 @@ class FanGraphs(object):
         """
         if start_season is None:
             raise ValueError(
-                "You need to provide at least one season to collect data for. Try pitching_leaders(season) or "
-                "pitching_leaders(start_season, end_season).")
+                    "You need to provide at least one season to collect data for. Try pitching_leaders(season) or "
+                    "pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
         return self.__get_leader_table(player_type='pit',
@@ -174,8 +180,8 @@ class FanGraphs(object):
         """
         if start_season is None:
             raise ValueError(
-                "You need to provide at least one season to collect data for. Try pitching_leaders(season) or "
-                "pitching_leaders(start_season, end_season).")
+                    "You need to provide at least one season to collect data for. Try pitching_leaders(season) or "
+                    "pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
         return self.__get_leader_table(player_type='bat',
@@ -203,8 +209,8 @@ class FanGraphs(object):
         """
         if start_season is None:
             raise ValueError(
-                "You need to provide at least one season to collect data for. "
-                "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
+                    "You need to provide at least one season to collect data for. "
+                    "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
         return self.__get_leader_table(player_type='bat',
@@ -235,8 +241,8 @@ class FanGraphs(object):
         """
         if start_season is None:
             raise ValueError(
-                "You need to provide at least one season to collect data for. "
-                "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
+                    "You need to provide at least one season to collect data for. "
+                    "Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
         if end_season is None:
             end_season = start_season
         return self.__get_leader_table(player_type='pit',
@@ -263,19 +269,22 @@ class FanGraphs(object):
         :param split_season: Return Season Splits for players
         :return: DataFrame
         """
-        parameters = {'pos': 'all',
-                      'stat': 'pit',
-                      'lg': league,
-                      'qual': 'y' if minimum_innings_pitched is None else minimum_innings_pitched,
-                      'player_type': ','.join(['0', ]),
-                      'season': start_season,
-                      'season1': end_season,
-                      'ind': split_season,
-                      'org': '',
-                      'splitTeam': 'false'}
+        parameters = {
+                'pos':         'all',
+                'stat':        'pit',
+                'lg':          league,
+                'qual':        'y' if minimum_innings_pitched is None else minimum_innings_pitched,
+                'player_type': ','.join(['0', ]),
+                'season':      start_season,
+                'season1':     end_season,
+                'ind':         split_season,
+                'org':         '',
+                'splitTeam':   'false'
+        }
 
         json = requests.get(
-            url=self._urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+                url=self._urls['milb_stats'].format(
+                        '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
         df = pd.DataFrame(json)
         df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
@@ -298,21 +307,43 @@ class FanGraphs(object):
         :param split_season: Return Season Splits for players
         :return: DataFrame
         """
-        parameters = {'pos': 'all',
-                      'stats': 'pit',
-                      'lg': league,
-                      'qual': 'y' if minimum_plate_appearances is None else minimum_plate_appearances,
-                      'player_type': ','.join(['0', ]),
-                      'season': start_season,
-                      'season1': end_season,
-                      'ind': 1 if split_season else 0,
-                      'org': '',
-                      'splitTeam': 'false'}
+        parameters = {
+                'pos':         'all',
+                'stats':       'pit',
+                'lg':          league,
+                'qual':        'y' if minimum_plate_appearances is None else minimum_plate_appearances,
+                'player_type': ','.join(['0', ]),
+                'season':      start_season,
+                'season1':     end_season,
+                'ind':         1 if split_season else 0,
+                'org':         '',
+                'splitTeam':   'false'
+        }
 
         json = requests.get(
-            url=self._urls['milb_stats'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+                url=self._urls['milb_stats'].format(
+                        '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
         df = pd.DataFrame(json)
         df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
+
+        return df
+
+    def get_2023_bat_projections(self) -> pd.DataFrame:
+        url = "type=steamer&stats=bat&pos=all&team=0&players=0&lg=all"
+        parameters = {
+                'type':    'steamer',
+                'stats':   'bat',
+                'pos':     'all',
+                'team':    '0',
+                'players': '0',
+                'lg':      'all',
+        }
+
+        json = requests.get(
+                url=self._urls['projections'].format(
+                        '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+        json = requests.get(url=url).json()
+        df = pd.DataFrame(json)
 
         return df
