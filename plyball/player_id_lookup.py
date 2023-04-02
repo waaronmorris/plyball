@@ -5,19 +5,44 @@ import pandas as pd
 import requests
 
 
+
 def get_lookup_table() -> pd.DataFrame:
     """
     Generate a Dataframe of Players
 
     :return: DataFrame
     """
+
     logging.info('Gathering player lookup table. This may take a moment.')
-    url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
-    s = requests.get(url).content
-    table = pd.read_csv(io.StringIO(s.decode('utf-8')), dtype={'key_sr_nfl': object,
-                                                               'key_sr_nba': object,
-                                                               'key_sr_nhl': object
-                                                               })
+    # Construct the URL to the CSV files in the repository
+    repo_url = "https://github.com"
+    csv_url = repo_url + "/chadwickbureau/register/tree/master/data"
+
+    # Retrieve the HTML contents of the CSV URL
+    response = requests.get(csv_url)
+    html = response.content
+
+    # Parse the HTML contents to find the URLs of the CSV files
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(html, 'html.parser')
+    csv_links = [a['href'] for a in soup.select('a[href$=".csv"]')]
+
+    # Loop through each CSV file and read it into a pandas DataFrame
+    register_data = []
+    for link in csv_links:
+        logging.info(f'Gathering {link}')
+        if 'people' in link:
+            csv_url = 'https://raw.githubusercontent.com/chadwickbureau/register/master/data/' + link.split('/')[-1]
+            logging.info(f'Gathering {csv_url}')
+            df = pd.read_csv(csv_url, dtype={
+                    'key_sr_nfl': object,
+                    'key_sr_nba': object,
+                    'key_sr_nhl': object
+            })
+            register_data.append(df)
+
+    # Concatenate all the DataFrames into a single DataFrame
+    table = pd.concat(register_data)
 
     table['name_last'] = table['name_last'].str.lower()
     table['name_first'] = table['name_first'].str.lower()
