@@ -79,7 +79,7 @@ class BaseballReference(object):
             cols = [ele.text.strip() for ele in cols]
             data.append([ele for ele in cols])
         data = pd.DataFrame(data[1:], columns=data[0])
-        return data
+        return data.copy()
 
     def __get_team_result_html(self, season: int, team: str):
         s = requests.get(self.urls['team_results'].format(team, season)).content

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from plyball.player_map import get_player_map
-from plyball.fangraph import FanGraphs
+from plyball.fangraphs import FanGraphs
 from plyball.ottoneu import Ottoneu
 
 
