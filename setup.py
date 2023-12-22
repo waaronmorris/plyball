@@ -75,7 +75,7 @@ setup(
                       'pandas >= 2.0.0',
                       'beautifulsoup4>=4.4.0',
                       'requests>=2.18.1',
-                      'lxml>=4.2.1'
+                      'lxml>=4.2.1',
                       'structlog==23.2.0',
                       ],
 
