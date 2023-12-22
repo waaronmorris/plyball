@@ -1,4 +1,4 @@
-import logging
+import structlog
 import warnings
 import re
 from typing import Literal
@@ -20,7 +20,7 @@ class FanGraphs(object):
             'projections': 'https://www.fangraphs.com/api/projections?{}'
     }
 
-    logger = logging.getLogger('fangraphs')
+    logger = structlog.get_logger("FanGraphs")
 
     def __init__(self):
         pass
