@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../plyball'))
+sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +22,7 @@ copyright = '2020, W. Aaron Morris'
 author = 'W. Aaron Morris'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.1'
+release = '2.2.4'
 
 
 # -- General configuration ---------------------------------------------------

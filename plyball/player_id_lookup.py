@@ -1,8 +1,11 @@
-import io
 import logging
 
 import pandas as pd
 import requests
+import structlog
+from bs4 import BeautifulSoup
+
+logger = structlog.getLogger(__name__)
 
 
 def get_lookup_table() -> pd.DataFrame:
@@ -11,13 +14,41 @@ def get_lookup_table() -> pd.DataFrame:
 
     :return: DataFrame
     """
-    logging.info('Gathering player lookup table. This may take a moment.')
-    url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
-    s = requests.get(url).content
-    table = pd.read_csv(io.StringIO(s.decode('utf-8')), dtype={'key_sr_nfl': object,
-                                                               'key_sr_nba': object,
-                                                               'key_sr_nhl': object
-                                                               })
+
+    logger.info('Gathering player lookup table. This may take a moment.')
+    # Construct the URL to the CSV files in the repository
+    repo_url = "https://github.com"
+    csv_url = repo_url + "/chadwickbureau/register/tree/master/data"
+
+    # Retrieve the HTML contents of the CSV URL
+    logger.debug(f'Gathering {csv_url}')
+    response = requests.get(csv_url)
+    html = response.json()
+    logger.debug(f'Gathered {len(html)} bytes')
+
+    # Parse the HTML contents to find the URLs of the CSV files
+    csv_links = []
+    for item in html['payload']['tree']['items']:
+        data_url = f"{csv_url}/{item['path']}"
+        csv_links.append(data_url)
+    logger.debug(f'Found {len(csv_links)} CSV files')
+
+    # Loop through each CSV file and read it into a pandas DataFrame
+    register_data = []
+    for link in csv_links:
+        logger.info(f'Gathering {link}')
+        if 'people' in link:
+            csv_url = 'https://raw.githubusercontent.com/chadwickbureau/register/master/data/' + link.split('/')[-1]
+            logger.info(f'Gathering {csv_url}')
+            df = pd.read_csv(csv_url, dtype={
+                    'key_sr_nfl': object,
+                    'key_sr_nba': object,
+                    'key_sr_nhl': object
+            })
+            register_data.append(df)
+
+    # Concatenate all the DataFrames into a single DataFrame
+    table = pd.concat(register_data)
 
     table['name_last'] = table['name_last'].str.lower()
     table['name_first'] = table['name_first'].str.lower()
