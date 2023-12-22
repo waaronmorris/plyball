@@ -347,6 +347,7 @@ class FanGraphs(object):
         df = pd.DataFrame(json)
 
         return df
+
     def get_2023_pitching_projections(self) -> pd.DataFrame:
         url = "type=steamer&stats=bat&pos=all&team=0&players=0&lg=all"
         parameters = {
