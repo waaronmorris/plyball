@@ -354,7 +354,6 @@ class FanGraphs(object):
         df = pd.DataFrame(json)
 
         return df
-
     def get_zip_pitching_projections(self) -> pd.DataFrame:
         parameters = {
                 'type':    'steamer',

@@ -1,11 +1,9 @@
-import logging
-from typing import List, Dict, Union
-
-import urllib.parse
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
 import requests
+import structlog
 from bs4 import BeautifulSoup
 from pandas import DataFrame
 
@@ -15,7 +13,7 @@ class Ottoneu(object):
     A class for scrapping data from an Ottoneu pipeline league.
 
     """
-    logger = logging.getLogger('ottoneu')
+    logger = structlog.get_logger("Ottoneu")
 
     def __init__(self, league_id: int):
         """
@@ -107,7 +105,6 @@ class Ottoneu(object):
         self.logger.info("{}/ajax/search".format(self.ottoneu_base_url))
         self.logger.info(data[:-1])
 
-        #payload = 'data%5BtxtSearch%5D=&data%5BselPos%5D%5B%5D=C&data%5BselPos%5D%5B%5D=1B&data%5BselPos%5D%5B%5D=2B&data%5BselPos%5D%5B%5D=3B&data%5BselPos%5D%5B%5D=SS&data%5BselPos%5D%5B%5D=OF&data%5BselPos%5D%5B%5D=SP&data%5BselPos%5D%5B%5D=RP&data%5BplayerLevel%5D=all&data%5BchkFAOnly%5D=&data%5BsearchFilter%5D=&data%5BsearchComparison%5D=&data%5BsearchQualification%5D='
         a = requests.post("{}/ajax/search".format(self.ottoneu_base_url),
                           data=data,
                           headers=headers)
@@ -151,8 +148,11 @@ class Ottoneu(object):
         df_batter_stat = pd.DataFrame(batter_stats)
         df_pitcher_stat = pd.DataFrame(pitcher_stats)
 
-        df_info = df_batter_info.append(df_pitcher_info, sort=False)
-        df_stat = df_batter_stat.append(df_pitcher_stat, sort=False)
+        # concat batter and pitcher info and stats rows into one dataframe
+        df_info = pd.concat([df_batter_info, df_pitcher_info], sort=False)
+        df_stat = pd.concat([df_batter_stat, df_pitcher_stat], sort=False)
+        # df_info = df_batter_info.concat([df_pitcher_info], sort=False)
+        # df_stat = df_batter_stat.append(df_pitcher_stat, sort=False)
 
         return {
             'info': df_info,
@@ -233,3 +233,10 @@ class Ottoneu(object):
         df['Date'] = pd.to_datetime(df['Date'])
         df['Salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
         return df
+
+    def get_line_up(self) -> pd.DataFrame:
+        """
+        Get Lineup of Players in Fantasy League.
+
+        :return:
+        """
