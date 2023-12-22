@@ -16,3 +16,16 @@ pip install plyball
 
 ## Documentation
 The official documentation is hosted on ReadtheDocs.org: https://plyball.readthedocs.io/
+
+## Dependencies
+- Python (>= 3.6)
+- beautifulsoup4 (>= 4.9.3)
+- lxml (>= 4.6.3)
+- pandas (>= 1.2.4)
+- requests (>= 2.25.1)
+- tqdm (>= 4.60.0)
+- unidecode (>= 1.2.0)
+- urllib3 (>= 1.26.4)
+- xlrd (>= 2.0.1)
+- xlwt (>= 1.3.0)
+- openpyxl (>= 3.0.7)
