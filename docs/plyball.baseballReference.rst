@@ -1,7 +1,7 @@
 Baseball Reference
 ===================
 
-.. autoclass:: baseballreference.BaseballReference
+.. autoclass:: plyball.baseballreference.BaseballReference
     :members:
     :undoc-members:
     :show-inheritance:

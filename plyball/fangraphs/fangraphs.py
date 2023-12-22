@@ -1,4 +1,5 @@
 import logging
+import warnings
 import re
 from typing import Literal
 
@@ -130,8 +131,16 @@ class FanGraphs(object):
                                '__',
                                '_'))
                 for column in __data.columns]
-        __data['player_type'] = player_type
-        return __data
+
+        with warnings.catch_warnings():
+            """
+            Pandas will throw a performance warning due to fragmentation of the data. This is expected behavior and
+            can be ignored. The DataFrame is copied to avoid this warning from being thrown for the user.
+            """
+            warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
+            __data['player_type'] = player_type
+
+        return __data.copy()
 
     def get_pitching_table(self,
                            start_season: int,
@@ -329,8 +338,7 @@ class FanGraphs(object):
 
         return df
 
-    def get_2023_bat_projections(self) -> pd.DataFrame:
-        url = "type=steamer&stats=bat&pos=all&team=0&players=0&lg=all"
+    def get_zip_bat_projections(self) -> pd.DataFrame:
         parameters = {
                 'type':    'steamer',
                 'stats':   'bat',
@@ -343,13 +351,10 @@ class FanGraphs(object):
         json = requests.get(
                 url=self._urls['projections'].format(
                         '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
-        json = requests.get(url=url).json()
         df = pd.DataFrame(json)
 
         return df
-
-    def get_2023_pitching_projections(self) -> pd.DataFrame:
-        url = "type=steamer&stats=bat&pos=all&team=0&players=0&lg=all"
+    def get_zip_pitching_projections(self) -> pd.DataFrame:
         parameters = {
                 'type':    'steamer',
                 'stats':   'pit',
