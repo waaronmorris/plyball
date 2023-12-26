@@ -1,11 +1,11 @@
-import structlog
-import warnings
 import re
+import warnings
 from typing import Literal
 
 import numpy as np
 import pandas as pd
 import requests
+import structlog
 from bs4 import BeautifulSoup
 
 
@@ -15,7 +15,7 @@ class FanGraphs(object):
 
     """
     _urls = {
-            'leaders':     'https://www.fangraphs.com/leaders.aspx?{}',
+            'leaders':     'https://www.fangraphs.com/api/leaders/major-league/data?{}',
             'milb_stats':  'https://www.fangraphs.com/api/leaders/minor-league/data?{}',
             'projections': 'https://www.fangraphs.com/api/projections?{}'
     }
@@ -68,55 +68,32 @@ class FanGraphs(object):
                 'age':     kwargs.get('age', ''),
                 'filter':  kwargs.get('filter', ''),
                 'players': kwargs.get('players', '0'),
-                'page':    '1_999999999'
+                'page':    '1_999999999',
+                'pageitems': '2000000000'
         }
 
-        self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         s = requests.get(
-                self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).content
+                self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
         self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
-        return BeautifulSoup(s, "lxml")
+        return s
 
     def __get_leader_table(self,
                            player_type: Literal['pit', 'bat'],
                            start_season: int,
                            **kwargs) -> pd.DataFrame:
 
-        soup = self.__get_leaders_html(player_type, start_season, **kwargs)
-        table = soup.find('table', {
-                'class': 'rgMasterTable'
-        })
+        data = self.__get_leaders_html(player_type, start_season, **kwargs)['data']
 
-        __data = []
-        __headings = [row.text.strip() for row in table.find_all('th')[1:]]
-        __headings.append('player_id')
+        __data = pd.DataFrame(data=data)
 
-        fb_perc_indices = [i for i, j in enumerate(__headings) if j == 'FB%']
-        __headings[fb_perc_indices[0]] = 'flyball_%'
-        __headings[fb_perc_indices[1]] = 'fastball_%'
-        __data.append(__headings)
-        table_body = table.find('tbody')
-        rows = table_body.find_all('tr')
-
-        for row in rows:
-            player_id = 'NA'
-            cols = row.find_all('td')
-            table_cols = []
-            for ele in cols:
-                table_cols.append(ele.text.strip())
-                for link in ele.find_all('a'):
-                    url = link.get('href', None)
-                    if 'playerid' in url:
-                        player_id = url.split('?')[1].split('&')[0].split('=')[1]
-            table_cols.append(player_id)
-            __data.append([ele for ele in table_cols[1:]])
-
-        __data = pd.DataFrame(data=__data, columns=__headings)[1:]
+        self.logger.info("Loaded DataFrame with {} rows".format(__data.shape[0]),
+                         shape=__data.shape,
+                         example=__data.head(1))
 
         # replace empty strings with NaN
         __data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
 
-        # convert percentage strings to floats   FB% duplicated
+        # convert percentage strings to floats FB% duplicated
         percentages = [column for column in __data.columns if '%' in column]
         for col in percentages:
             if not __data[col].empty:
@@ -168,7 +145,7 @@ class FanGraphs(object):
                                        start_season=start_season,
                                        end_season=end_season,
                                        league=league,
-                                       qualified='y' if minimum_innings_pitched is None else minimum_innings_pitched,
+                                       qualified='0' if minimum_innings_pitched is None else minimum_innings_pitched,
                                        ind=1 if split_season else 0)
 
     def get_batting_table(self,
@@ -197,7 +174,7 @@ class FanGraphs(object):
                                        start_season=start_season,
                                        end_season=end_season,
                                        league=league,
-                                       qualified='y' if minimum_plate_appearances is None else minimum_plate_appearances,
+                                       qualified='0' if minimum_plate_appearances is None else minimum_plate_appearances,
                                        ind=1 if split_season else 0)
 
     def get_team_batting_table(self,
