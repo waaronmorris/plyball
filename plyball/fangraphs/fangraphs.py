@@ -244,7 +244,7 @@ class FanGraphs(object):
                                 end_season: int = None,
                                 league: str = 'all',
                                 minimum_innings_pitched: int = None,
-                                split_season: int = 1):
+                                split_season: int = 0):
         """
         Get Minor League Pitching Stats from the Prospects sections
 
@@ -257,16 +257,19 @@ class FanGraphs(object):
         """
         parameters = {
                 'pos':         'all',
-                'stat':        'pit',
-                'lg':          league,
-                'qual':        'y' if minimum_innings_pitched is None else minimum_innings_pitched,
-                'player_type': ','.join(['0', ]),
+                'level':     0,
+                'stats':     'pit',
+                'lg':        league,
+                'qual':      '0' if minimum_innings_pitched is None else minimum_innings_pitched,
+                'type':      '0',
+                'team':      '',
                 'season':      start_season,
-                'season1':     end_season,
+                'seasonEnd': start_season if end_season is None else end_season,
                 'ind':         split_season,
                 'org':         '',
                 'splitTeam':   'false'
         }
+        # pos = all & level = 0 & lg = 2 & stats = bat & qual = y & type = 0 & team = & season = 2023 & seasonEnd = 2023 & org = & ind = 0 & splitTeam = false
 
         json = requests.get(
                 url=self._urls['milb_stats'].format(
@@ -294,24 +297,29 @@ class FanGraphs(object):
         :return: DataFrame
         """
         parameters = {
-                'pos':         'all',
-                'stats':       'pit',
-                'lg':          league,
-                'qual':        'y' if minimum_plate_appearances is None else minimum_plate_appearances,
-                'player_type': ','.join(['0', ]),
-                'season':      start_season,
-                'season1':     end_season,
-                'ind':         1 if split_season else 0,
-                'org':         '',
-                'splitTeam':   'false'
+                'pos':       'all',
+                'level':     0,
+                'lg':        league,
+                'stats':     'bat',
+                'qual':      '0' if minimum_plate_appearances is None else minimum_plate_appearances,
+                'team':      '',
+                'type':      '0',
+                'season':    start_season,
+                'seasonEnd':   start_season if end_season is None else end_season,
+                'org':       '',
+                'ind':       1 if split_season else 0,
+                'splitTeam': 'false'
         }
+
+        # ?pos = all & level = 0 & lg = all & stats = pit & qual = 0 & type = 0 & team = & season = 2023 & seasonEnd = 2023 & org = & ind = 0 & splitTeam = false & players = & sort = 25, 1
 
         json = requests.get(
                 url=self._urls['milb_stats'].format(
                         '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
+        self.logger.info("JSON", json=json)
         df = pd.DataFrame(json)
-        df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
+        # df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
 
         return df
 
