@@ -31,9 +31,7 @@ class Ottoneu(object):
         Process a Player's page to extract player_type using Beautiful Soup
 
         :param soup: BS4 Website
-        :type soup: BeautifulSoup
         :param stat_type: 'Pitching' or 'Batting'
-        :type stat_type: str
         :param league: 'MLB' or 'MILB'
         :type league: str
         :return: DataFrame
