@@ -357,7 +357,14 @@ class FanGraphs(object):
 
         return df
 
-    def get_daily_game_log(self, player_id: int, position: str, season: int, start_date: str, end_date: str, **kwargs):
+    def get_daily_game_log(
+            self,
+            player_id: int,
+            position: str,
+            season: int,
+            start_date: str,
+            end_date: str,
+            **kwargs):
         """
         https://www.fangraphs.com/api/players/game-log?playerid=10155&position=OF&type=0&season=2023
         :return:
@@ -376,6 +383,6 @@ class FanGraphs(object):
             url='https://www.fangraphs.com/api/players/game-log?{}'.format(
                 '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
-        df = pd.DataFrame(json)
+        df = pd.DataFrame(json['mlb'])
 
         return df
