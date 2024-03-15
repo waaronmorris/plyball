@@ -1,3 +1,4 @@
+import logging
 import re
 import warnings
 from typing import Literal
@@ -357,13 +358,13 @@ class FanGraphs(object):
 
         return df
 
-    def get_daily_game_log(
+    def get_daily_mlb_game_log(
             self,
             player_id: int,
             position: str,
-            season: int,
-            start_date: str,
-            end_date: str,
+            season: int = None,
+            start_date: str = None,
+            end_date: str = None,
             **kwargs):
         """
         https://www.fangraphs.com/api/players/game-log?playerid=10155&position=OF&type=0&season=2023
@@ -373,15 +374,18 @@ class FanGraphs(object):
         parameters = {
             'playerid': player_id,
             'position': position,
-            'type': -1,
+            'type': 0,
             'season': season,
             'start': start_date,
             'end': end_date
         }
 
-        json = requests.get(
-            url='https://www.fangraphs.com/api/players/game-log?{}'.format(
-                '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
+        url = 'https://www.fangraphs.com/api/players/game-log?{}'.format(
+            '&'.join(['{}={}'.format(k, v) for k, v in parameters.items() if v != '' and v is not None]))
+
+        logging.info(url)
+
+        json = requests.get(url).json()
 
         df = pd.DataFrame(json['mlb'])
 
