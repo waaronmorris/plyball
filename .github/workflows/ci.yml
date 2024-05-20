@@ -46,9 +46,8 @@ jobs:
           pip install poetry flake8 pytest
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Semantic Release
-        run: |
-          pip install python-semantic-release
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          semantic-release publish
+      - name: Python Semantic Release
+        uses: relekang/python-semantic-release@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          PyPI_token: ${{ secrets.PYPI_API_TOKEN }}
