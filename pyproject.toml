@@ -61,8 +61,12 @@ version_variable = [
     "plyball/__init__.py:__version__",
     "pyproject.toml:version"
 ]
-branch = "main"
-
-upload_to_pypi = false
+branch = "master"
+upload_to_pypi = true
 upload_to_release = true
-build_command = "pip install poetry && poetry publish"
+build_command = "pip install poetry && poetry build"
+upload_command = "poetry publish --build"
+version_source = "tag"
+commit_version_number = true
+commit_message = "chore(release): release version {new_version} [skip ci]"
+
