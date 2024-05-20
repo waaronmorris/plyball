@@ -44,5 +44,7 @@ class TestFanGraphs(unittest.TestCase):
         pt = fg.get_zip_pitching_projections()
         self.assertEqual(type(pt), pd.DataFrame)
 
+        print(1)
+
 if __name__ == '__main__':
     unittest.main()
