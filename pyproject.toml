@@ -48,6 +48,9 @@ urllib3 = "1.26.5"
 webencodings = "0.5.1"
 flake8 = "^7.0.0"
 
+[tool.poetry.dev-dependencies]
+python-semantic-release = "^7.31.4"
+
 
 [build-system]
 requires = ["poetry-core"]
@@ -58,7 +61,12 @@ version_variable = [
     "plyball/__init__.py:__version__",
     "pyproject.toml:version"
 ]
-branch = "main"
-upload_to_pypi = false
+branch = "master"
+upload_to_pypi = true
 upload_to_release = true
-build_command = "pip install poetry && poetry publish"
+build_command = "pip install poetry && poetry build"
+upload_command = "poetry publish --build"
+version_source = "tag"
+commit_version_number = true
+commit_message = "chore(release): release version {new_version} [skip ci]"
+
