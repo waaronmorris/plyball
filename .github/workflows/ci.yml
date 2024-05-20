@@ -78,6 +78,6 @@ jobs:
 
       - name: Publish package
         run: |
-          poetry publish
+          poetry publish --build
         env:
           POETRY_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
