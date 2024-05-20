@@ -358,7 +358,7 @@ class FanGraphs(object):
 
         return df
 
-    def get_daily_mlb_game_log(
+    def get_daily_game_log(
             self,
             player_id: int,
             position: str,
