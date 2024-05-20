@@ -52,6 +52,9 @@ flake8 = "^7.0.0"
 python-semantic-release = "^9.7.3"
 
 
+[tool.poetry.group.dev.dependencies]
+commitizen = "^3.26.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -71,7 +74,7 @@ allow_zero_version = true
 tag_format = "{version}"
 upload_to_pypi = false
 upload_to_release = true
-build_command = "poetry build"
+build_command = "pip install poetry && poetry build"
 
 
 
