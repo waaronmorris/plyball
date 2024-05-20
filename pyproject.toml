@@ -60,9 +60,11 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
+version_toml = [
+    "pyproject.toml:tool.poetry.version",
+]
 version_variable = [
     "plyball/__init__.py:__version__",
-    "pyproject.toml:version"
 ]
 assets = []
 build_command_env = []
