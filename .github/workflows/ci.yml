@@ -54,5 +54,14 @@ jobs:
       - name: Python Semantic Release
         uses: python-semantic-release/python-semantic-release@master
         with:
-          force: "patch"
-          push: "false"
+          version: auto
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
+          build_command: poetry build
+          publish_command: poetry publish
+          changelog_file: CHANGELOG.md
+          release_branches: master
+          release_prerelease: false
+          release_draft: false
+          release_create_release: true
+          release_create_release_draft: false
