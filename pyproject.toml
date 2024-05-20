@@ -48,6 +48,9 @@ urllib3 = "1.26.5"
 webencodings = "0.5.1"
 flake8 = "^7.0.0"
 
+[tool.poetry.dev-dependencies]
+python-semantic-release = "^7.31.4"
+
 
 [build-system]
 requires = ["poetry-core"]
@@ -59,6 +62,7 @@ version_variable = [
     "pyproject.toml:version"
 ]
 branch = "main"
+
 upload_to_pypi = false
 upload_to_release = true
 build_command = "pip install poetry && poetry publish"
