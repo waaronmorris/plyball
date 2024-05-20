@@ -39,10 +39,11 @@ jobs:
     steps:
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
-      - name: PYPI API Token
+          python-version: '3.x'
+      - name: Install dependencies
         run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+          python -m pip install --upgrade pip
+          pip install poetry flake8 pytest
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Semantic Release
