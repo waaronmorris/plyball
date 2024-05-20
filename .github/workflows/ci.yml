@@ -50,7 +50,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry flake8 pytest
       - name: Python Semantic Release
-        uses: python-semantic-release/python-semantic-release@v8.0.0
+        uses: python-semantic-release/python-semantic-release@master
         with:
           force: "patch"
           push: "false"

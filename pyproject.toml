@@ -69,4 +69,5 @@ upload_command = "poetry publish --build"
 version_source = "tag"
 commit_version_number = true
 commit_message = "chore(release): release version {new_version} [skip ci]"
+tag_format = "{version}"
 
