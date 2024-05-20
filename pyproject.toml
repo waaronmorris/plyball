@@ -77,7 +77,6 @@ upload_to_release = true
 build_command = "pip install poetry && poetry build"
 
 
-
 [tool.semantic_release.branches.main]
 match = "(main|master)"
 prerelease_token = "rc"
