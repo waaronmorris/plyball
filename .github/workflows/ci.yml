@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m poetry install
+      - name: PYPI API Token
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -45,6 +48,9 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: PYPI API Token
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Semantic Release
