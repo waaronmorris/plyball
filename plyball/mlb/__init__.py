@@ -2,6 +2,8 @@ import datetime as dt
 import logging
 from typing import List, Dict
 
+import pandas as pd
+
 import requests
 
 base_url = 'https://statsapi.mlb.com/api/v1/'
@@ -29,7 +31,7 @@ class MLBStats(object):
         self.logger = logging.getLogger(__name__)
         self.logger.info('MLBStats Initialized')
 
-    def get_game_lineups(self, game_pk):
+    def get_game_lineups(self, game_pk) -> pd.DataFrame:
         """
         Get Lineups for Today's Games
 
@@ -73,7 +75,7 @@ class MLBStats(object):
                                 }
                         }
                         lineups.append(player)
-                return lineups
+                return pd.DataFrame(lineups)
             else:
 
                 raise Exception(f"Error retrieving the projected lineup for Game ID: {game_pk}")
@@ -91,7 +93,7 @@ class MLBStats(object):
         """
         pass
 
-    def get_lineups_by_day(self, run_date: dt.datetime):
+    def get_lineups_by_day(self, run_date: dt.datetime) -> pd.DataFrame:
         """
         Get Schedule by Day
 
@@ -114,7 +116,7 @@ class MLBStats(object):
                 for game in date["games"]:
                     return self.get_game_lineups(game["gamePk"])
 
-    def get_game_boxscore(self, game_pk) -> List[Dict]:
+    def get_game_boxscore(self, game_pk) -> pd.DataFrame:
         """
         Get Game Logs
 
@@ -142,7 +144,7 @@ class MLBStats(object):
         else:
             raise Exception(f"Error retrieving the game data for Game ID: {game_pk}")
 
-    def get_schedule(self, start_date: dt.datetime, end_date: dt.datetime) -> List[Dict]:
+    def get_schedule(self, start_date: dt.datetime, end_date: dt.datetime) -> pd.DataFrame:
         """
         Get Schedule
 
@@ -167,6 +169,6 @@ class MLBStats(object):
                 for game in date["games"]:
                     games.append(game)
 
-            return games
+            return pd.DataFrame(games)
         else:
             raise Exception(f"Error retrieving the schedule")
