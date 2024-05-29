@@ -94,7 +94,7 @@ class BaseballReference(object):
             data = data.drop('Streak2', 1)
         return data
 
-    def schedule_and_record(self, season: int, team: str) -> pd.DataFrame
+    def schedule_and_record(self, season: int, team: str) -> pd.DataFrame:
         """
         Get a teams schedule and record from Baseball Reference
 
