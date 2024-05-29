@@ -22,7 +22,6 @@ lxml = "4.9.2"
 keyring = "23.13.1"
 markupsafe = "2.1.2"
 numpy = "1.24.2"
-packaging = "23.1"
 pandas = "2.0.0"
 pkginfo = "1.9.6"
 pygments = "2.15.0"
@@ -50,6 +49,7 @@ flake8 = "^7.0.0"
 
 [tool.poetry.dev-dependencies]
 python-semantic-release = "^9.7.3"
+packaging = "23.1"
 
 
 [tool.poetry.group.dev.dependencies]
