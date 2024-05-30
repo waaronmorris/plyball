@@ -58,7 +58,6 @@ class MLBStats(object):
                     try:
                         lineup = game["lineups"][f"{team}Players"]
                     except KeyError:
-                        print(game)
                         logger.info(f"No projected lineup for {team} team")
                         logger.info(game)
                         continue
