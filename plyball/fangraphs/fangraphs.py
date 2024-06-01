@@ -75,7 +75,7 @@ class FanGraphs(object):
 
         s = requests.get(
             self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
-        self.logger.info(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
+        self.logger.debug(self._urls['leaders'].format('&'.join(['{}={}'.format(k, v) for k, v in parameters.items()])))
         return s
 
     def __get_leader_table(self,
@@ -318,7 +318,7 @@ class FanGraphs(object):
             url=self._urls['milb_stats'].format(
                 '&'.join(['{}={}'.format(k, v) for k, v in parameters.items()]))).json()
 
-        self.logger.info("JSON", json=json)
+        self.logger.debug("JSON", json=json)
         df = pd.DataFrame(json)
         # df['Name'] = df.Name.apply(lambda x: BeautifulSoup(x, 'lxml').a.contents[0])
 
@@ -383,7 +383,7 @@ class FanGraphs(object):
         url = 'https://www.fangraphs.com/api/players/game-log?{}'.format(
             '&'.join(['{}={}'.format(k, v) for k, v in parameters.items() if v != '' and v is not None]))
 
-        logging.info(url)
+        logging.debug(url)
 
         json = requests.get(url).json()
 

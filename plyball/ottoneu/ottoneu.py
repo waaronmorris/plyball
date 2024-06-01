@@ -15,6 +15,9 @@ class Ottoneu(object):
     """
     logger = structlog.get_logger("Ottoneu")
 
+
+
+
     def __init__(self, league_id: int):
         """
         Initialize Ottoneu with the ID of the League you are a part of.
@@ -101,7 +104,7 @@ class Ottoneu(object):
                 data = data + '&'
 
         self.logger.info("{}/ajax/search".format(self.ottoneu_base_url))
-        self.logger.info(data[:-1])
+        self.logger.debug(data[:-1])
 
         a = requests.post("{}/ajax/search".format(self.ottoneu_base_url),
                           data=data,
@@ -219,14 +222,14 @@ class Ottoneu(object):
                 data = data + '&'
 
         self.logger.info("{}/ajax/search".format(self.ottoneu_base_url))
-        self.logger.info(data[:-1])
+        self.logger.debug(data[:-1])
 
         a = requests.post("{}/ajax/search".format(self.ottoneu_base_url),
                           data=data,
                           headers=headers)
 
         _json = a.json()
-        self.logger.info(f'JSON: {_json}')
+        self.logger.debug(f'JSON: {_json}')
         batter_info = []
         batter_stats = []
         for batter in _json['batterResults']:

@@ -3,7 +3,6 @@ import logging
 from typing import List, Dict
 
 import pandas as pd
-
 import requests
 
 base_url = 'https://statsapi.mlb.com/api/v1/'
@@ -14,6 +13,9 @@ urls = {
     'game': base_url + "game/{game_pk}/boxscore?timecode={run_date}",
     'schedule': base_url + "schedule/?eventTypes=primary,secondary&sportId=1&startDate={start_date}&endDate={end_date}"
 }
+
+# TIMECODE_FORMAT = YYYYMMDD_HHMMSS
+TIMECODE_FORMAT = "%Y%m%d_%H%M%S"
 
 headers = {
         "Content-Type": "application/json"
@@ -58,7 +60,6 @@ class MLBStats(object):
                     try:
                         lineup = game["lineups"][f"{team}Players"]
                     except KeyError:
-                        print(game)
                         logger.info(f"No projected lineup for {team} team")
                         logger.info(game)
                         continue
@@ -116,17 +117,23 @@ class MLBStats(object):
                 for game in date["games"]:
                     return self.get_game_lineups(game["gamePk"])
 
-    def get_game_boxscore(self, game_pk) -> pd.DataFrame:
+    def get_game_boxscore(self, game_pk: str, run_date: dt.datetime) -> pd.DataFrame:
         """
         Get Game Logs
 
         :param game_pk:
         :return:
         """
-        self.logger.info('Getting Game Logs|{}'.format(urls['game'].format(run_date=game_pk)))
+        self.logger.info(
+            'Getting Game Logs|{}'.format(
+                urls['game'].format(game_pk=game_pk,
+                                    run_date=run_date.strftime("%Y-%m-%d"))))
 
         # Send a GET request to the API endpoint
-        response = requests.get(urls['game'].format(run_date=game_pk), headers=headers)
+        response = requests.get(urls['game'].format(
+            game_pk=game_pk,
+            run_date=run_date.strftime(TIMECODE_FORMAT)),
+            headers=headers)
 
         # Check if the request was successful
         if response.status_code == 200:
