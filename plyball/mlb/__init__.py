@@ -147,9 +147,11 @@ class MLBStats(object):
 
                 return game
             else:
-                raise Exception(f"Error retrieving the game data for Game ID: {game_pk}")
+                logger.info(response.text)
+                raise Exception(f"Error retrieving the game data for Game ID: {game_pk} | Response: {response.text}")
         else:
-            raise Exception(f"Error retrieving the game data for Game ID: {game_pk}")
+            logger.info(response.text)
+            raise Exception(f"Error retrieving the game data for Game ID: {game_pk} | Response: {response.text}")
 
     def get_schedule(self, start_date: dt.datetime, end_date: dt.datetime) -> pd.DataFrame:
         """
