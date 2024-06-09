@@ -4,6 +4,8 @@ import logging
 import pandas as pd
 import requests
 
+from plyball.mlb.models import BoxScoreModel
+
 base_url = 'https://statsapi.mlb.com/api/v1/'
 
 urls = {
@@ -196,7 +198,7 @@ class MLBStats(object):
 
         else:
             logger.info(response.text)
-            raise Exception(f"Error retrieving the game data for Game ID: {game_pk} | Response: {response.text}")
+            raise Exception(f"Error retrieving the game data for Game ID: {game_pk}")
 
     def get_schedule(self, start_date: dt.datetime, end_date: dt.datetime) -> pd.DataFrame:
         """
