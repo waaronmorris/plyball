@@ -1,6 +1,5 @@
 import datetime as dt
 import logging
-from typing import List, Dict
 
 import pandas as pd
 import requests
@@ -138,17 +137,63 @@ class MLBStats(object):
         # Check if the request was successful
         if response.status_code == 200:
             # Get the JSON response
-            data = response.json()
+            box_score = BoxScoreModel(response.json())
+            player_stats = []
 
-            # Check if the game data is available
-            if "dates" in data and len(data["dates"]) > 0 and "games" in data["dates"][0] and len(
-                    data["dates"][0]["games"]) > 0:
-                game = data["dates"][0]["games"][0]
+            for player in box_score.home.players:
+                stats_dict = {
+                    'player_name': player.name,
+                    'player_id': player.id,
+                    'team': box_score.home.team,
+                    'position_name"': player.position.name,
+                    "position_type": player.position.type,
+                    "position_abbreviation": player.position.abbreviation,
+                    "batting_order": player.battingOrder,
+                    "batter_status": player.gameStatus.isCurrentBatter,
+                    "pitcher_status": player.gameStatus.isCurrentPitcher,
+                    "on_bench": player.gameStatus.isOnBench,
+                    "substitute": player.gameStatus.isSubstitute,
+                    "jersey_number": player.jerseyNumber,
+                }
+                for stats in player.stats.batting:
+                    stats_dict.update(stats)
 
-                return game
-            else:
-                logger.info(response.text)
-                raise Exception(f"Error retrieving the game data for Game ID: {game_pk} | Response: {response.text}")
+                for stats in player.stats.pitching:
+                    stats_dict.update(stats)
+
+                for stats in player.stats.fielding:
+                    stats_dict.update(stats)
+
+                player_stats.append(stats_dict)
+
+            for player in box_score.away.players:
+                stats_dict = {
+                    'player_name': player.name,
+                    'player_id': player.id,
+                    'team': box_score.away.team,
+                    'position_name"': player.position.name,
+                    "position_type": player.position.type,
+                    "position_abbreviation": player.position.abbreviation,
+                    "batting_order": player.battingOrder,
+                    "batter_status": player.gameStatus.isCurrentBatter,
+                    "pitcher_status": player.gameStatus.isCurrentPitcher,
+                    "on_bench": player.gameStatus.isOnBench,
+                    "substitute": player.gameStatus.isSubstitute,
+                    "jersey_number": player.jerseyNumber,
+                }
+                for stats in player.stats.batting:
+                    stats_dict.update(stats)
+
+                for stats in player.stats.pitching:
+                    stats_dict.update(stats)
+
+                for stats in player.stats.fielding:
+                    stats_dict.update(stats)
+
+                player_stats.append(stats_dict)
+
+            return player_stats
+
         else:
             logger.info(response.text)
             raise Exception(f"Error retrieving the game data for Game ID: {game_pk} | Response: {response.text}")
