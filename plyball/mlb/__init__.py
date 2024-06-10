@@ -176,7 +176,7 @@ class MLBStats(object):
             for player_id, player in box_score.teams.away.players.items():
                 player_stats.append(process_player_stats(player, box_score.teams.away.team.id))
 
-            return player_stats
+            return pd.DataFrame(player_stats)
 
         else:
             logger.info(response.text)
