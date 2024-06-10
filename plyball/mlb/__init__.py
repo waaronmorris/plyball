@@ -171,8 +171,6 @@ class MLBStats(object):
                 return stats_dict
 
             for player_id, player in box_score.teams.home.players.items():
-                print(player)
-
                 player_stats.append(process_player_stats(player, box_score.teams.home.team.id))
 
             for player_id, player in box_score.teams.away.players.items():

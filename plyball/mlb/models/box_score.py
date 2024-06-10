@@ -132,11 +132,11 @@ class Player(BaseModel):
     position: PlayerPosition
     status: PlayerStatus
     parentTeamId: int
-    battingOrder: Optional[str]
+    battingOrder: Optional[str] = None
     stats: PlayerGameStats
     seasonStats: PlayerSeasonStats
     gameStatus: PlayerGameStatus
-    allPositions: Optional[List[AllPosition]]
+    allPositions: Optional[List[AllPosition]] =   None
 
 
 class AllPosition(BaseModel):
@@ -211,7 +211,7 @@ class TopPerformingPlayer(BaseModel):
     stats: PlayerGameStats
     seasonStats: PlayerSeasonStats
     gameStatus: PlayerGameStatus
-    allPositions: List[AllPosition]
+    allPositions: Optional[List[AllPosition]] = None
 
 
 class TopPerformer(BaseModel):
