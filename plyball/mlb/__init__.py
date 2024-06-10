@@ -4,7 +4,7 @@ import logging
 import pandas as pd
 import requests
 
-from plyball.mlb.models import BoxScoreModel
+from plyball.mlb.models import BoxScoreResponse
 
 base_url = 'https://statsapi.mlb.com/api/v1/'
 
@@ -139,14 +139,14 @@ class MLBStats(object):
         # Check if the request was successful
         if response.status_code == 200:
             # Get the JSON response
-            box_score = BoxScoreModel(response.json())
+            box_score = BoxScoreResponse(**response.json())
             player_stats = []
 
-            for player in box_score.home.players:
+            def process_player_stats(player, team_id):
                 stats_dict = {
-                    'player_name': player.name,
-                    'player_id': player.id,
-                    'team': box_score.home.team,
+                    'player_name': player.person.fullName,
+                    'player_id': player.person.id,
+                    'team': team_id,
                     'position_name"': player.position.name,
                     "position_type": player.position.type,
                     "position_abbreviation": player.position.abbreviation,
@@ -157,42 +157,26 @@ class MLBStats(object):
                     "substitute": player.gameStatus.isSubstitute,
                     "jersey_number": player.jerseyNumber,
                 }
-                for stats in player.stats.batting:
-                    stats_dict.update(stats)
 
-                for stats in player.stats.pitching:
-                    stats_dict.update(stats)
+                for key, value in player.stats.batting.items():
+                    stats_dict[key] = value
 
-                for stats in player.stats.fielding:
-                    stats_dict.update(stats)
+                for key, value in player.stats.pitching.items():
+                    stats_dict[key] = value
 
-                player_stats.append(stats_dict)
 
-            for player in box_score.away.players:
-                stats_dict = {
-                    'player_name': player.name,
-                    'player_id': player.id,
-                    'team': box_score.away.team,
-                    'position_name"': player.position.name,
-                    "position_type": player.position.type,
-                    "position_abbreviation": player.position.abbreviation,
-                    "batting_order": player.battingOrder,
-                    "batter_status": player.gameStatus.isCurrentBatter,
-                    "pitcher_status": player.gameStatus.isCurrentPitcher,
-                    "on_bench": player.gameStatus.isOnBench,
-                    "substitute": player.gameStatus.isSubstitute,
-                    "jersey_number": player.jerseyNumber,
-                }
-                for stats in player.stats.batting:
-                    stats_dict.update(stats)
+                for key, value in player.stats.fielding.items():
+                    stats_dict[key] = value
 
-                for stats in player.stats.pitching:
-                    stats_dict.update(stats)
+                return stats_dict
 
-                for stats in player.stats.fielding:
-                    stats_dict.update(stats)
+            for player_id, player in box_score.teams.home.players.items():
+                print(player)
 
-                player_stats.append(stats_dict)
+                player_stats.append(process_player_stats(player, box_score.teams.home.team.id))
+
+            for player_id, player in box_score.teams.away.players.items():
+                player_stats.append(process_player_stats(player, box_score.teams.away.team.id))
 
             return player_stats
 
