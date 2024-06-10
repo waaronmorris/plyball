@@ -197,7 +197,7 @@ class Official(BaseModel):
 
 
 class BoxScoreInfo(BaseModel):
-    label: str
+    label: Optional[str] = None
     value: Optional[str] = None
 
 
