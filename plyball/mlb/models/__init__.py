@@ -1,1 +1,6 @@
-from .box_score import BoxScoreModel
+from plyball.mlb.models.box_score import BoxScoreResponse
+
+__all__ = [
+    'BoxScoreResponse'
+]
+

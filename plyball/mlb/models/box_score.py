@@ -164,7 +164,7 @@ class TeamNoteItem(BaseModel):
 class Team(BaseModel):
     team: TeamData
     teamStats: TeamStats
-    players: [str, Player]
+    players: Dict[str, Player]
     batters: List[int]
     pitchers: List[int]
     bench: List[int]
@@ -229,3 +229,10 @@ class BoxScoreResponse(BaseModel):
     info: List[BoxScoreInfo]
     pitchingNotes: List[str]
     topPerformers: List[TopPerformer]
+
+
+# Update forward references
+Team.update_forward_refs()
+Player.update_forward_refs()
+TopPerformingPlayer.update_forward_refs()
+BoxScoreResponse.update_forward_refs()
