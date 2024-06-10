@@ -128,10 +128,10 @@ class PlayerGameStatus(BaseModel):
 
 class Player(BaseModel):
     person: Person
-    jerseyNumber: str
+    jerseyNumber: Optional[str] = None
     position: PlayerPosition
     status: PlayerStatus
-    parentTeamId: int
+    parentTeamId: Optional[int] = None
     battingOrder: Optional[str] = None
     stats: PlayerGameStats
     seasonStats: PlayerSeasonStats
@@ -203,10 +203,10 @@ class BoxScoreInfo(BaseModel):
 
 class TopPerformingPlayer(BaseModel):
     person: Person
-    jerseyNumber: str
+    jerseyNumber: Optional[str] = None
     position: PlayerPosition
     status: PlayerStatus
-    parentTeamId: int
+    parentTeamId: Optional[int] = None
     battingOrder: Optional[str] = None
     stats: PlayerGameStats
     seasonStats: PlayerSeasonStats
