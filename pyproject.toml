@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "plyball"
-version = "2.2.67"
+version = "2.2.68"
 description = ""
 authors = ["W. Aaron Morris <waaronmorris@gmail.com>"]
 readme = "README.md"
