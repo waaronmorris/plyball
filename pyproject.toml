@@ -118,7 +118,7 @@ allowed_tags = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "style", 
 major_tags = ["major"]
 minor_tags = ["feat", "minor"]
 patch_tags = ["fix", "perf", "patch"]
-default_bump_level = 0
+default_bump_level = 1
 
 [tool.semantic_release.remote]
 name = "origin"
