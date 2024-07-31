@@ -6,33 +6,33 @@ from pydantic import BaseModel
 
 
 class SpringLeague(BaseModel):
-    id: int
-    name: str
-    link: str
-    abbreviation: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    link: Optional[str] = None
+    abbreviation:  Optional[str] = None
 
 
 class Venue(BaseModel):
-    id: int
-    name: str
-    link: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    link: Optional[str] = None
 
 
 class SpringVenue(BaseModel):
-    id: int
-    link: str
+    id: Optional[int] = None
+    link: Optional[str] = None
 
 
 class League(BaseModel):
-    id: int
-    name: str
-    link: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    link: Optional[str] = None
 
 
 class Division(BaseModel):
-    id: int
-    name: str
-    link: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    link: Optional[str] = None
 
 
 class Sport(BaseModel):
@@ -52,8 +52,8 @@ class Record(BaseModel):
     gamesPlayed: int
     wildCardGamesBack: str
     leagueGamesBack: str
-    springLeagueGamesBack: str
-    sportGamesBack: str
+    springLeagueGamesBack: Optional[str] = None
+    sportGamesBack: Optional[str] = None
     divisionGamesBack: str
     conferenceGamesBack: str
     leagueRecord: LeagueRecord
@@ -65,14 +65,14 @@ class Record(BaseModel):
 
 
 class TeamData(BaseModel):
-    springLeague: SpringLeague
+    springLeague: Optional[SpringLeague] = None
     allStarStatus: str
     id: int
     name: str
     link: str
     season: int
     venue: Venue
-    springVenue: SpringVenue
+    springVenue: Optional[SpringVenue] = None
     teamCode: str
     fileCode: str
     abbreviation: str
@@ -80,7 +80,7 @@ class TeamData(BaseModel):
     locationName: str
     firstYearOfPlay: str
     league: League
-    division: Division
+    division: Optional[Division] = None
     sport: Sport
     shortName: str
     record: Record
