@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -129,13 +129,13 @@ class PlayerGameStatus(BaseModel):
 class Player(BaseModel):
     person: Person
     jerseyNumber: Optional[str] = None
-    position: PlayerPosition
-    status: PlayerStatus
+    position: Optional[PlayerPosition] = None
+    status: Optional[PlayerStatus] = None
     parentTeamId: Optional[int] = None
     battingOrder: Optional[str] = None
-    stats: PlayerGameStats
-    seasonStats: PlayerSeasonStats
-    gameStatus: PlayerGameStatus
+    stats: Optional[PlayerGameStats] = None
+    seasonStats: Optional[PlayerSeasonStats] = None
+    gameStatus: Optional[PlayerGameStatus] = None
     allPositions: Optional[List[AllPosition]] =   None
 
 
@@ -215,19 +215,19 @@ class TopPerformingPlayer(BaseModel):
 
 
 class TopPerformer(BaseModel):
-    player: TopPerformingPlayer
-    type: str
-    gameScore: int
+    player: Optional[TopPerformingPlayer] = None
+    type: Optional[str] = None
+    gameScore: Optional[int] = None
     hittingGameScore: Optional[int] = None
     pitchingGameScore: Optional[int] = None
 
 
 class BoxScoreResponse(BaseModel):
-    copyright: str
+    copyright: Optional[str] = None
     teams: Teams
     officials: List[Official]
     info: List[BoxScoreInfo]
-    pitchingNotes: List[str]
+    pitchingNotes: List[Union[str,None]] = None
     topPerformers: List[TopPerformer]
 
 
