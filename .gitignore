@@ -8,3 +8,4 @@ __pycache__
 /build
 /upload_to_test_pypi.sh
 /.
+/analysis
