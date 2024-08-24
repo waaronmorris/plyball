@@ -1,3 +1,4 @@
+from io import StringIO
 from typing import Dict, List, Union
 
 import numpy as np
@@ -7,6 +8,7 @@ import structlog
 from bs4 import BeautifulSoup
 from pandas import DataFrame
 
+logger = structlog.get_logger(__name__)
 
 class Ottoneu(object):
     """
@@ -328,29 +330,50 @@ class Ottoneu(object):
         players = []
         teams = []
 
+        __url = '{}/{}'.format(self.ottoneu_base_url, 'transactions')
+
         while next_page:
-            transaction_page = requests.get('{}{}'.format(self.ottoneu_base_url, 'transactions'))
+            transaction_page = requests.get(__url)
+
             soup = BeautifulSoup(transaction_page.text, 'html.parser')
             next_page = soup.find_all('a', text="Next 50 transactions")
             if next_page:
-                next_page = next_page[0].get('href', None)
+                __url = '{}/{}/{}'.format(self.ottoneu_base_url,
+                                          'transactions',
+                                          next_page[0].get('href', None))
             else:
-                next_page = None
-            table = soup.find_all('table')[0]
-            for link in table.find_all('a'):
-                url = link.get('href', None)
-                if 'playercard' in url:
-                    players.append(int(url[url.find('=') + 1:]))
-                elif 'team' in url:
-                    teams.append(int(url[url.find('=') + 1:]))
+                __url = None
 
-            df = df.append(pd.read_html(str(table))[0])
+            try:
+                table = soup.find_all('table')[0]
+                for link in table.find_all('a'):
+                    url = link.get('href', None)
+                    if 'player' in url:
+                        # <a href="/186/players/31855">Alex Call</a>
+                        players.append(int(url.split('/')[-1]))
+                    elif 'team' in url:
+                        try:
+                            # <a href="/186/team/1419">Fake News Bears</a>
+                            teams.append(int(url.split('/')[-1]))
+                        except ValueError:
+                            logger.info('No Team Found on {}'.format(__url))
+
+            except IndexError:
+                logger.info('No Table Found on {}'.format(__url))
+                logger.info(soup.elements)
+                continue
+
+            # df = df.(pd.read_html(str(table))[0])
+            table_html = str(table)
+            df = pd.concat([df, pd.read_html(StringIO(table_html))[0]], sort=False)
+
             self.logger.info(next_page)
 
         df['team_id'] = np.asarray(teams)
         df['player_id'] = np.asarray(players)
         df['Date'] = pd.to_datetime(df['Date'])
         df['Salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
+
         return df
 
     def get_line_up(self) -> pd.DataFrame:
