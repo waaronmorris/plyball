@@ -424,6 +424,7 @@ class Ottoneu(object):
         df['Date'] = pd.to_datetime(df['Date'], format='%b %d %Y %I:%M:%S %p')
         df['Salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
         df['trade_id'] = np.asarray(trades)
+        df['auction_id'] = np.asarray(adds)
 
         if to_date:
             df = df[df['Date'] <= to_date]
