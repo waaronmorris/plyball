@@ -334,6 +334,7 @@ class Ottoneu(object):
         players = []
         teams = []
         trades = []
+        adds = []
 
         __url = '{}/{}'.format(self.ottoneu_base_url, 'transactions')
 
@@ -372,8 +373,21 @@ class Ottoneu(object):
                                     trades.append(int(v))
                                     break
 
+                        elif 'auctionresults' in url:
+                            # https://ottoneu.fangraphs.com/186/auctionresults?id=1142035
+                            parameters = url.split('?')[1].split('&')
+                            for parameter in parameters:
+                                p, v = parameter.split('=')
+                                if p == 'id':
+                                    adds.append(int(v))
+                                    break
+
+
                     if len(trades) != len(players):
                         trades.append(None)
+
+                    if len(adds) != len(players):
+                        adds.append(None)
 
             except IndexError:
                 logger.info('Players or Teams not found on {}'.format(__url))
