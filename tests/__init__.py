@@ -3,18 +3,7 @@ import unittest
 import pandas as pd
 
 from plyball.fangraphs import FanGraphs
-from plyball.ottoneu import Ottoneu
 
-
-class TestOttoneu(unittest.TestCase):
-
-    def test_pitching_table(self):
-        ot = Ottoneu(186)
-        players = ot.players()
-
-        self.assertEqual(type(players['batterResults']), pd.DataFrame)
-        self.assertEqual(players['info'].shape[1], 21)
-        self.assertEqual(players['stat'].shape[1], 18)
 
 
 class TestFanGraphs(unittest.TestCase):
