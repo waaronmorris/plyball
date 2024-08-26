@@ -329,6 +329,7 @@ class Ottoneu(object):
         df = pd.DataFrame()
         players = []
         teams = []
+        trades = []
 
         __url = '{}/{}'.format(self.ottoneu_base_url, 'transactions')
 
@@ -351,12 +352,22 @@ class Ottoneu(object):
                     if 'player' in url:
                         # <a href="/186/players/31855">Alex Call</a>
                         players.append(int(url.split('/')[-1]))
-                    elif 'team' in url:
+
+                    if 'team' in url:
                         try:
                             # <a href="/186/team/1419">Fake News Bears</a>
                             teams.append(int(url.split('/')[-1]))
                         except ValueError:
                             logger.info('No Team Found on {}'.format(__url))
+
+                    if  'viewtrade' in url:
+                        # 'https://ottoneu.fangraphs.com/186/viewtrade?id=107928&pending=1'
+                        parameters = url.split('?')[1].split('&')
+                        for parameter in parameters:
+                            if 'id' in parameter:
+                                trades.append(int(parameter.split('=')[-1]))
+                    else:
+                        trades.append(None)
 
             except IndexError:
                 logger.info('No Table Found on {}'.format(__url))
@@ -371,8 +382,9 @@ class Ottoneu(object):
 
         df['team_id'] = np.asarray(teams)
         df['player_id'] = np.asarray(players)
-        df['Date'] = pd.to_datetime(df['Date'])
-        df['Salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
+        df['date'] = pd.to_datetime(df['Date'])
+        df['salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
+        df['trade_id'] = np.asarray(trades)
 
         return df
 
