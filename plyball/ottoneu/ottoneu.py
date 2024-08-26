@@ -322,7 +322,8 @@ class Ottoneu(object):
 
     def league_transactions(self,
                             to_date: dt.datetime = None,
-                            from_date: dt.datetime = None) -> pd.DataFrame:
+                            from_date: dt.datetime = None
+                            ) -> pd.DataFrame:
         """
         Get Transaction Log of Transaction of Players in Fantasy League.
 
