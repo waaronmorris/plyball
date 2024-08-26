@@ -29,3 +29,7 @@ The official documentation is hosted on ReadtheDocs.org: https://plyball.readthe
 - xlrd (>= 2.0.1)
 - xlwt (>= 1.3.0)
 - openpyxl (>= 3.0.7)
+
+
+## License
+MIT
