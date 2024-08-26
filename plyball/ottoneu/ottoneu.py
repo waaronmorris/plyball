@@ -319,7 +319,9 @@ class Ottoneu(object):
 
         return player_detail_stats
 
-    def league_transactions(self) -> pd.DataFrame:
+    def league_transactions(self,
+                            to_date: dt.datetime = None,
+                            from_date: dt.datetime = None) -> pd.DataFrame:
         """
         Get Transaction Log of Transaction of Players in Fantasy League.
 
@@ -333,58 +335,80 @@ class Ottoneu(object):
 
         __url = '{}/{}'.format(self.ottoneu_base_url, 'transactions')
 
-        while next_page:
+        while __url:
             transaction_page = requests.get(__url)
 
             soup = BeautifulSoup(transaction_page.text, 'html.parser')
-            next_page = soup.find_all('a', text="Next 50 transactions")
-            if next_page:
-                __url = '{}/{}/{}'.format(self.ottoneu_base_url,
-                                          'transactions',
-                                          next_page[0].get('href', None))
-            else:
-                __url = None
 
             try:
                 table = soup.find_all('table')[0]
-                for link in table.find_all('a'):
-                    url = link.get('href', None)
-                    if 'player' in url:
-                        # <a href="/186/players/31855">Alex Call</a>
-                        players.append(int(url.split('/')[-1]))
+            except IndexError:
+                logger.info('No Table Found on {}'.format(__url))
+                table = None
 
-                    if 'team' in url:
-                        try:
-                            # <a href="/186/team/1419">Fake News Bears</a>
-                            teams.append(int(url.split('/')[-1]))
-                        except ValueError:
-                            logger.info('No Team Found on {}'.format(__url))
+            try:
+                for row in table.find_all('tr'):
+                    for link in row.find_all('a'):
+                        url = link.get('href', None)
+                        if 'player' in url:
+                            # <a href="/186/players/31855">Alex Call</a>
+                            players.append(int(url.split('/')[-1]))
 
-                    if  'viewtrade' in url:
-                        # 'https://ottoneu.fangraphs.com/186/viewtrade?id=107928&pending=1'
-                        parameters = url.split('?')[1].split('&')
-                        for parameter in parameters:
-                            if 'id' in parameter:
-                                trades.append(int(parameter.split('=')[-1]))
-                    else:
+                        elif 'team' in url:
+                            try:
+                                # <a href="/186/team/1419">Fake News Bears</a>
+                                teams.append(int(url.split('/')[-1]))
+                            except ValueError:
+                                logger.info('No Team Found on {}'.format(__url))
+
+                        elif 'viewtrade' in url:
+                            # 'https://ottoneu.fangraphs.com/186/viewtrade?id=107928&pending=1'
+                            parameters = url.split('?')[1].split('&')
+                            for parameter in parameters:
+                                p, v = parameter.split('=')
+                                if p == 'id':
+                                    trades.append(int(v))
+                                    break
+
+                    if len(trades) != len(players):
                         trades.append(None)
 
             except IndexError:
-                logger.info('No Table Found on {}'.format(__url))
-                logger.info(soup.elements)
-                continue
+                logger.info('Players or Teams not found on {}'.format(__url))
+
 
             # df = df.(pd.read_html(str(table))[0])
             table_html = str(table)
             df = pd.concat([df, pd.read_html(StringIO(table_html))[0]], sort=False)
 
+            earliest_date = pd.to_datetime(df['Date']).min()
+
+            if to_date and earliest_date < to_date:
+                break
+
             self.logger.info(next_page)
+            next_page = soup.find_all('a', text="Next 50 transactions")
+            if next_page:
+                __url = '{}/{}?{}'.format(self.ottoneu_base_url,
+                                          'transactions',
+                                          ''.join(next_page[0].get('href').split('?')[1:]))
+            else:
+                __url = None
+
 
         df['team_id'] = np.asarray(teams)
         df['player_id'] = np.asarray(players)
-        df['date'] = pd.to_datetime(df['Date'])
-        df['salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
+
+        # Aug 25 2024 4:21:36 PM
+        df['Date'] = pd.to_datetime(df['Date'], format='%b %d %Y %I:%M:%S %p')
+        df['Salary'] = pd.to_numeric(df['Salary'].str.replace('$', ''))
         df['trade_id'] = np.asarray(trades)
+
+        if to_date:
+            df = df[df['Date'] <= to_date]
+
+        if from_date:
+            df = df[df['Date'] >= from_date]
 
         return df
 
