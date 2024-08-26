@@ -1,6 +1,6 @@
+import datetime as dt
 from io import StringIO
 from typing import Dict, List, Union
-import datetime as dt
 
 import numpy as np
 import pandas as pd
@@ -380,9 +380,14 @@ class Ottoneu(object):
 
             # df = df.(pd.read_html(str(table))[0])
             table_html = str(table)
-            df = pd.concat([df, pd.read_html(StringIO(table_html))[0]], sort=False)
+            df = pd.concat([
+                df,
+                pd.read_html(StringIO(table_html))[0]],
+                sort=False
+            )
 
-            earliest_date = pd.to_datetime(df['Date']).min()
+            earliest_date = pd.to_datetime(df['Date'],
+                                           format='%b %d %Y %I:%M:%S %p').min()
 
             if to_date and earliest_date < to_date:
                 break
