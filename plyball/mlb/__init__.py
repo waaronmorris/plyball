@@ -159,14 +159,14 @@ class MLBStats(object):
                 }
 
                 for key, value in player.stats.batting.items():
-                    stats_dict[key] = value
+                    stats_dict[f'batting_{key}'] = value
 
                 for key, value in player.stats.pitching.items():
-                    stats_dict[key] = value
+                    stats_dict[f'pitching_{key}'] = value
 
 
                 for key, value in player.stats.fielding.items():
-                    stats_dict[key] = value
+                    stats_dict[f'fielding_{key}'] = value
 
                 return stats_dict
 
