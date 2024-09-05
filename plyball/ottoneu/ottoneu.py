@@ -433,9 +433,7 @@ class Ottoneu(object):
         if from_date:
             df = df[df['Date'] >= from_date]
 
-        return dg.Output(
-
-        )
+        return df
 
     def get_line_up(self) -> pd.DataFrame:
         """
