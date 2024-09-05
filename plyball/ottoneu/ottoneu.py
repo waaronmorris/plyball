@@ -329,6 +329,7 @@ class Ottoneu(object):
 
         :return: DataFrame
         """
+        __start_time = dt.datetime.now()
         next_page = True
         df = pd.DataFrame()
         players = []
@@ -432,7 +433,9 @@ class Ottoneu(object):
         if from_date:
             df = df[df['Date'] >= from_date]
 
-        return df
+        return dg.Output(
+
+        )
 
     def get_line_up(self) -> pd.DataFrame:
         """
