@@ -143,12 +143,13 @@ class MLBStats(object):
             player_stats = []
 
             def process_player_stats(player, team_id):
+
                 stats_dict = {
                     'player_name': player.person.fullName,
                     'player_id': player.person.id,
                     'team': team_id,
-                    'position_name': player.position.name if player.position.name else None,
-                    "position_type": player.position.type if player.position.type else None,
+                    'position_name': player.position.name if player.position.name else None if player.position is None else None,
+                    "position_type": player.position.type if player.position.type else None if player.position is None else None,
                     "position_abbreviation": player.position.abbreviation if player.position.abbreviation else None,
                     "batting_order": player.battingOrder,
                     "batter_status": player.gameStatus.isCurrentBatter,
