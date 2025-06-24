@@ -1,6 +1,7 @@
 import datetime as dt
 from io import StringIO
 from typing import Dict, List, Union
+import re
 
 import numpy as np
 import pandas as pd
@@ -17,9 +18,6 @@ class Ottoneu(object):
 
     """
     logger = structlog.get_logger("Ottoneu")
-
-
-
 
     def __init__(self, league_id: int):
         """
@@ -435,9 +433,180 @@ class Ottoneu(object):
 
         return df
 
-    def get_line_up(self) -> pd.DataFrame:
+    def get_line_up(self, team_id: int, date: str, stat_filter: str = 'today') -> pd.DataFrame:
         """
         Get Lineup of Players in Fantasy League.
 
-        :return:
+        Args:
+            team_id (int): Team ID in Ottoneu
+            date (str): Date in YYYY-MM-DD format
+            stat_filter (str): Stat filter (today, season, etc.)
+
+        Returns:
+            pd.DataFrame: DataFrame containing lineup information with columns for both batters and pitchers:
+                Common columns:
+                - player_id: Ottoneu player ID
+                - name: Player name
+                - position: Current position in lineup
+                - player_positions: All eligible positions
+                - is_pitcher: Whether player is a pitcher
+                - is_position_player: Whether player is a position player
+                - team: MLB team
+                - salary: Player salary in Ottoneu
+                - status: Player status (e.g., IL10, IL15)
+                - game_status: Game status and score
+
+                Batter specific columns:
+                - batting_stats: AB, H, 2B, 3B, HR, BB, HBP, SB, CS
+                - opponent_pitcher: Opposing pitcher name
+                - opponent_pitcher_hand: Opposing pitcher handedness
+
+                Pitcher specific columns:
+                - pitching_stats: G, GS, IP, SV, HLD, K, BB, HBP, HR
+                - pitch_count_last_5_days: Array of pitch counts for last 5 days
+                - pitch_count_last_3_days: Array of pitch counts for last 3 days
         """
+        url = f'{self.ottoneu_base_url}/setlineups?team={team_id}&date={date}&statFilter={stat_filter}'
+        
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        players_data = []
+        
+        # Process both batter and pitcher tables
+        for table in soup.find_all('table', {'class': 'lineup-table'}):
+            try:
+                # Determine if this is the pitcher table
+                is_pitcher_table = 'pitcher' in table.get('class', [])
+                
+                # Get the stat headers for this table
+                headers = []
+                header_row = table.find('tr', {'class': 'statHeaders'})
+                if header_row:
+                    headers = [th.text.strip() for th in header_row.find_all('th')]
+                
+                # Process each player row
+                for row in table.find_all('tr'):
+                    try:
+                        # Get the position cell which contains data attributes
+                        pos_cell = row.find('td', {'class': 'lineup__button'})
+                        if not pos_cell:
+                            continue
+
+                        # Extract all data attributes
+                        player_data = {
+                            'player_id': pos_cell.get('data-player-id'),
+                            'position': pos_cell.get('data-position'),
+                            'player_positions': pos_cell.get('data-player-positions'),
+                            'is_pitcher': pos_cell.get('data-is-pitcher') == 'true',
+                            'is_position_player': pos_cell.get('data-is-position-player') == 'true',
+                            'is_pitcher_version_of_two_way_player': pos_cell.get('data-is-pitcher-version-of-two-way-player') == 'true'
+                        }
+
+                        # Get player name and details
+                        name_cell = row.find('td', {'class': 'player-name'})
+                        if name_cell:
+                            # Get player name
+                            name_link = name_cell.find('a')
+                            if name_link:
+                                player_data['name'] = name_link.text.strip()
+
+                            # Get player bio info (team, position, handedness, salary)
+                            bio_span = name_cell.find('span', {'class': 'lineup-player-bio'})
+                            if bio_span:
+                                bio_text = bio_span.find('span', {'class': 'strong tinytext'}).text.strip()
+                                bio_parts = bio_text.split('&nbsp;')
+                                if len(bio_parts) >= 3:
+                                    player_data['team'] = bio_parts[0]
+                                    player_data['listed_positions'] = bio_parts[1]
+                                    player_data['handedness'] = bio_parts[2]
+
+                                # Get salary
+                                salary_span = bio_span.find('span', {'class': 'green tinytext strong'})
+                                if salary_span:
+                                    player_data['salary'] = int(salary_span.text.strip('$'))
+
+                                # Get IL status if present
+                                il_span = bio_span.find('span', {'class': 'tinytext morered'})
+                                if il_span:
+                                    player_data['status'] = il_span.text.strip()
+
+                            # Get opponent info
+                            opp_info = name_cell.find('span', {'class': 'lineup-opponent-info'})
+                            if opp_info:
+                                game_info = opp_info.find('span', {'class': 'lineup-game-info'})
+                                if game_info:
+                                    # Get game status and score
+                                    game_text = game_info.text.strip()
+                                    player_data['game_status'] = game_text
+
+                                    if not is_pitcher_table:
+                                        # Get opponent pitcher info for batters
+                                        pitcher_link = opp_info.find('a', href=True)
+                                        if pitcher_link:
+                                            player_data['opponent_pitcher'] = pitcher_link.text.strip()
+                                            # Get pitcher handedness
+                                            hand_span = opp_info.find('span', {'class': 'tinytext'})
+                                            if hand_span:
+                                                player_data['opponent_pitcher_hand'] = hand_span.text.strip()
+
+                        # Get pitch count data for pitchers
+                        if is_pitcher_table:
+                            pitch_count_container = row.find('td', {'class': 'pitch_count_container'})
+                            if pitch_count_container:
+                                # Last 5 days
+                                five_day_table = pitch_count_container.find('table', {'class': 'pitch_count_last_five_days'})
+                                if five_day_table:
+                                    counts = [td.text.strip() for td in five_day_table.find_all('td')]
+                                    player_data['pitch_count_last_5_days'] = counts
+
+                                # Last 3 days
+                                three_day_table = pitch_count_container.find('table', {'class': 'pitch_count_last_three_days'})
+                                if three_day_table:
+                                    counts = [td.text.strip() for td in three_day_table.find_all('td')]
+                                    player_data['pitch_count_last_3_days'] = counts
+
+                        # Get stats based on table type
+                        stats_cells = row.find_all('td', {'class': 'stats-for-desktop'})
+                        if stats_cells and headers:
+                            stats_dict = {}
+                            for i, cell in enumerate(stats_cells):
+                                if i + 1 < len(headers):  # Add +1 to account for the Position column
+                                    header = headers[i + 1].lower()
+                                    stat_value = cell.text.strip()
+                                    if stat_value and stat_value != 'Not Available':
+                                        try:
+                                            stat_value = float(stat_value)
+                                        except ValueError:
+                                            pass
+                                        stats_dict[header] = stat_value
+                            
+                            # Store stats in appropriate field based on table type
+                            if is_pitcher_table:
+                                player_data['pitching_stats'] = stats_dict
+                            else:
+                                player_data['batting_stats'] = stats_dict
+
+                        players_data.append(player_data)
+
+                    except Exception as e:
+                        logger.error(f'Error processing player row: {str(e)}')
+                        continue
+
+            except Exception as e:
+                logger.error(f'Error processing table: {str(e)}')
+                continue
+
+        df = pd.DataFrame(players_data)
+        
+        # Clean up the DataFrame
+        if not df.empty:
+            # Convert player_id to numeric
+            df['player_id'] = pd.to_numeric(df['player_id'], errors='coerce')
+            
+            # Convert salary to numeric
+            if 'salary' in df.columns:
+                df['salary'] = pd.to_numeric(df['salary'], errors='coerce')
+
+        logger.info(f'Successfully retrieved lineup data for {len(df)} players')
+        return df

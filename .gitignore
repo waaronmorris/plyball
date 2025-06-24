@@ -9,3 +9,4 @@ __pycache__
 /upload_to_test_pypi.sh
 /.
 /analysis
+test_output/
