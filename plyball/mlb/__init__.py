@@ -134,29 +134,29 @@ class MLBStats(object):
 
         # Send a GET request to the API endpoint
         try:
-        response = requests.get(urls['game'].format(
-            game_pk=game_pk,
-            run_date=run_date.strftime(TIMECODE_FORMAT)),
-            headers=headers)
+            response = requests.get(urls['game'].format(
+                game_pk=game_pk,
+                run_date=run_date.strftime(TIMECODE_FORMAT)),
+                headers=headers)
 
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Get the JSON response
+            # Check if the request was successful
+            if response.status_code == 200:
+                # Get the JSON response
                 try:
-            box_score = BoxScoreResponse(**response.json())
+                    box_score = BoxScoreResponse(**response.json())
                     logger.info(f"Successfully parsed boxscore response for game {game_pk}")
-            player_stats = []
+                    player_stats = []
 
-            def process_player_stats(player, team_id):
+                    def process_player_stats(player, team_id):
                         try:
                             player_id = player.person.id
                             player_name = player.person.fullName
                             logger.debug(f"Processing player: {player_name} (ID: {player_id})")
 
-                stats_dict = {
+                            stats_dict = {
                                 'player_name': player_name,
                                 'player_id': player_id,
-                    'team': team_id,
+                                'team': team_id,
                             }
                             
                             # Handle position data with logging
@@ -180,10 +180,10 @@ class MLBStats(object):
                             # Handle game status with logging
                             if player.gameStatus is not None:
                                 stats_dict.update({
-                    "batter_status": player.gameStatus.isCurrentBatter,
-                    "pitcher_status": player.gameStatus.isCurrentPitcher,
-                    "on_bench": player.gameStatus.isOnBench,
-                    "substitute": player.gameStatus.isSubstitute,
+                                    "batter_status": player.gameStatus.isCurrentBatter,
+                                    "pitcher_status": player.gameStatus.isCurrentPitcher,
+                                    "on_bench": player.gameStatus.isOnBench,
+                                    "substitute": player.gameStatus.isSubstitute,
                                 })
                             else:
                                 logger.warning(f"Player {player_name} (ID: {player_id}) has no game status data")
@@ -200,26 +200,26 @@ class MLBStats(object):
                             # Handle stats data with logging
                             if player.stats is not None:
                                 if hasattr(player.stats, 'batting'):
-                for key, value in player.stats.batting.items():
-                    stats_dict[f'batting_{key}'] = value
+                                    for key, value in player.stats.batting.items():
+                                        stats_dict[f'batting_{key}'] = value
                                 else:
                                     logger.debug(f"Player {player_name} (ID: {player_id}) has no batting stats")
 
                                 if hasattr(player.stats, 'pitching'):
-                for key, value in player.stats.pitching.items():
-                    stats_dict[f'pitching_{key}'] = value
+                                    for key, value in player.stats.pitching.items():
+                                        stats_dict[f'pitching_{key}'] = value
                                 else:
                                     logger.debug(f"Player {player_name} (ID: {player_id}) has no pitching stats")
 
                                 if hasattr(player.stats, 'fielding'):
-                for key, value in player.stats.fielding.items():
-                    stats_dict[f'fielding_{key}'] = value
+                                    for key, value in player.stats.fielding.items():
+                                        stats_dict[f'fielding_{key}'] = value
                                 else:
                                     logger.debug(f"Player {player_name} (ID: {player_id}) has no fielding stats")
                             else:
                                 logger.warning(f"Player {player_name} (ID: {player_id}) has no stats data")
 
-                return stats_dict
+                            return stats_dict
                         except Exception as e:
                             logger.error(f"Error processing player data: {e}")
                             # Return basic info to avoid breaking the entire pipeline
@@ -233,7 +233,7 @@ class MLBStats(object):
                     # Process home team players
                     logger.info(f"Processing home team players for game {game_pk}")
                     home_team_id = box_score.teams.home.team.id
-            for player_id, player in box_score.teams.home.players.items():
+                    for player_id, player in box_score.teams.home.players.items():
                         try:
                             player_stats.append(process_player_stats(player, home_team_id))
                         except Exception as e:
@@ -242,18 +242,18 @@ class MLBStats(object):
                     # Process away team players
                     logger.info(f"Processing away team players for game {game_pk}")
                     away_team_id = box_score.teams.away.team.id
-            for player_id, player in box_score.teams.away.players.items():
+                    for player_id, player in box_score.teams.away.players.items():
                         try:
                             player_stats.append(process_player_stats(player, away_team_id))
                         except Exception as e:
                             logger.error(f"Error processing away player {player_id}: {e}")
 
                     logger.info(f"Successfully processed {len(player_stats)} players for game {game_pk}")
-            return pd.DataFrame(player_stats)
+                    return pd.DataFrame(player_stats)
                 except Exception as e:
                     logger.error(f"Error parsing box score data for game {game_pk}: {str(e)}")
                     raise Exception(f"Error parsing box score data for game {game_pk}: {str(e)}")
-        else:
+            else:
                 logger.error(f"API request failed with status code {response.status_code}: {response.text}")
                 raise Exception(f"Error retrieving the game data for Game ID: {game_pk}. Status code: {response.status_code}")
         except requests.RequestException as e:
